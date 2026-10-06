@@ -31,6 +31,45 @@ export default async function TaskDetailsPage({ params }: { params: Promise<{ id
     .select('id, full_name')
     .order('full_name', { ascending: true })
 
+  // Haal de tijdlijn op uit de database
+  const { data: historyData, error: historyError } = await supabase
+    .from('task_history')
+    .select(`
+      id,
+      action,
+      created_at,
+      profiles (
+        full_name
+      )
+    `)
+    .eq('task_id', resolvedParams.id)
+    .order('created_at', { ascending: false })
+
+  let history = []
+  
+  if (!historyError && historyData && historyData.length > 0) {
+    history = historyData.map((h: any) => {
+      // Supabase geeft nested objects terug (soms als array, maar bij een FK meestal als object)
+      const profile = Array.isArray(h.profiles) ? h.profiles[0] : h.profiles
+      const fullName = profile?.full_name || 'Onbekende Gebruiker'
+      
+      return {
+        id: h.id,
+        user: fullName,
+        initial: fullName.charAt(0).toUpperCase(),
+        action: h.action,
+        time: new Date(h.created_at).toLocaleString('nl-NL', { 
+           day: 'numeric', month: 'short', hour: '2-digit', minute:'2-digit' 
+        })
+      }
+    })
+  } else {
+    // Fallback dummy data als de tabel nog niet bestaat of nog leeg is
+    history = [
+      { id: 'mock1', user: 'Voorbeeld Gebruiker', initial: 'V', action: 'Wacht op live data...', time: 'Zojuist' }
+    ]
+  }
+
   return (
     <div className="max-w-4xl mx-auto py-4 sm:py-8">
 
@@ -164,6 +203,35 @@ export default async function TaskDetailsPage({ params }: { params: Promise<{ id
             placeholder="Begin hier met schrijven..."
             readOnly={isReadOnly}
           />
+        </div>
+
+        {/* TIMELINE / HISTORY SECTION */}
+        <div className="p-8 sm:p-10 border-t border-gray-100 dark:border-zinc-800 bg-white dark:bg-zinc-900">
+          <h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-6">Activiteit</h3>
+          <div className="space-y-6">
+            {history.map((item, index) => (
+              <div key={item.id} className="relative flex gap-4">
+                {/* Lijn die de bolletjes verbindt (behalve bij de laatste) */}
+                {index !== history.length - 1 && (
+                  <span className="absolute left-[15px] top-8 bottom-[-24px] w-[2px] bg-gray-100 dark:bg-zinc-800" />
+                )}
+                
+                {/* Bolletje met initiaal */}
+                <div className="relative shrink-0 w-8 h-8 rounded-full bg-blue-50 dark:bg-blue-900/30 flex items-center justify-center ring-4 ring-white dark:ring-zinc-900 z-10">
+                  <span className="text-xs font-bold text-blue-600 dark:text-blue-400">{item.initial}</span>
+                </div>
+                
+                <div className="flex flex-col pt-1.5 pb-2">
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                    <span className="font-medium text-gray-900 dark:text-white">{item.user}</span>{' '}
+                    <span className="italic">{item.action.toLowerCase().includes('aangemaakt') ? 'heeft deze' : 'heeft de'}</span>{' '}
+                    <span className="font-medium text-gray-800 dark:text-gray-200">{item.action}</span>
+                  </p>
+                  <span className="text-xs text-gray-400 dark:text-zinc-500 mt-1">{item.time}</span>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
 
         {/* STICKY BOTTOM BAR FOR SAVE */}

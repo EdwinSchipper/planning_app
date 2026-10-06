@@ -25,9 +25,9 @@ export default async function DashboardHome() {
     'use server'
     const supabase = await createClient();
     const task_id = formData.get('task_id') as string;
-    
+
     if (!task_id) return;
-    
+
     const { error } = await supabase.from('db_tasks').delete().eq('id', parseInt(task_id));
     if (error) {
       console.error("Fout bij verwijderen taak:", error.message);
@@ -112,7 +112,7 @@ export default async function DashboardHome() {
       {/* RECENTE ACTIVITEIT / TOP TAKEN */}
       <div className="overflow-hidden rounded-xl bg-white dark:bg-zinc-900 shadow-sm border border-gray-100 dark:border-zinc-800">
         <div className="border-b border-gray-100 dark:border-zinc-800 px-6 py-5 flex items-center justify-between bg-gray-50/50 dark:bg-zinc-800/20">
-          <h3 className="text-base font-semibold leading-6 text-gray-900 dark:text-white">Mijn Prioriteiten (Top 5)</h3>
+          <h3 className="text-base font-semibold leading-6 text-gray-900 dark:text-white">Mijn Prioriteiten</h3>
           <Link href="/dashboard/planning" className="text-sm font-medium text-blue-600 hover:text-blue-500 dark:text-blue-400">
             Bekijk planning &rarr;
           </Link>
@@ -125,16 +125,16 @@ export default async function DashboardHome() {
                   <Link href={`/dashboard/planning/${task.id}`} className="text-base font-semibold text-gray-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400 transition-colors truncate block">
                     {task.task_title || "Naamloze Taak"}
                   </Link>
-                  
+
                   <div className="mt-2 flex items-center gap-3 flex-wrap text-xs text-gray-500 dark:text-zinc-400">
                     <span className={getStatusBadgeClasses(task.status || 'Open')}>{task.status || 'Open'}</span>
-                    
+
                     {task.type && (
                       <span className="font-medium text-gray-600 dark:text-gray-400 bg-gray-50 dark:bg-zinc-800/50 px-2 py-0.5 rounded-md border border-gray-100 dark:border-zinc-800">
                         {task.type}
                       </span>
                     )}
-                    
+
                     <div className="flex items-center gap-1.5 ml-1">
                       <CalendarIcon className="w-4 h-4 shrink-0 opacity-70" />
                       <span>

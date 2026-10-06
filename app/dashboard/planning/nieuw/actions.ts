@@ -29,7 +29,7 @@ export async function createTask(prevState: any, formData: FormData) {
   }
 
   // Sla op in de database
-  const { error } = await supabase
+  const { data, error } = await supabase
     .from('db_tasks')
     .insert({
       task_title,
@@ -42,9 +42,20 @@ export async function createTask(prevState: any, formData: FormData) {
       userID: assigned_user_id || user.id, // Koppel aan de geselecteerde gebruiker (standaard jezelf)
       isAdmin: false
     })
+    .select('id')
+    .single()
 
   if (error) {
     return { error: "Er is iets misgegaan bij het opslaan: " + error.message }
+  }
+
+  // Log in history
+  if (data?.id) {
+    await supabase.from('task_history').insert({
+      task_id: data.id,
+      user_id: user.id,
+      action: 'Taak aangemaakt'
+    })
   }
 
   // Als alles goed ging: vernieuw de planning pagina (zodat de taak erbij staat) en ga terug
