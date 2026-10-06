@@ -20,6 +20,12 @@ export default async function TaskDetailsPage({ params }: { params: Promise<{ id
     notFound()
   }
 
+  // Haal alle profielen op
+  const { data: profiles } = await supabase
+    .from('profiles')
+    .select('id, full_name')
+    .order('full_name', { ascending: true })
+
   // 2. Haal de naam van de maker op
   let creatorName = 'Onbekende gebruiker'
   if (task.userID) {
@@ -136,6 +142,13 @@ export default async function TaskDetailsPage({ params }: { params: Promise<{ id
               defaultValue={task.estimated_hours || ''}
               placeholder="0"
               className="w-16 text-center"
+            />
+
+            <UIInlineSelect 
+              label="Toegewezen aan"
+              name="userID"
+              defaultValue={task.userID || ''}
+              options={(profiles || []).map(p => ({ value: p.id, label: p.full_name || p.id }))}
             />
             
             <button type="submit" className="ml-auto text-sm font-medium text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 transition-colors px-3 py-1.5 rounded-md hover:bg-blue-50 dark:hover:bg-blue-900/30">

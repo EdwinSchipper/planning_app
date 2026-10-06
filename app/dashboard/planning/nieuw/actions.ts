@@ -21,6 +21,7 @@ export async function createTask(prevState: any, formData: FormData) {
   const date_start = formData.get('date_start') as string
   const date_end = formData.get('date_end') as string
   const estimated_hours = formData.get('estimated_hours') as string
+  const assigned_user_id = formData.get('userID') as string
 
   // Simpele validatie
   if (!task_title || !task_content) {
@@ -38,7 +39,7 @@ export async function createTask(prevState: any, formData: FormData) {
       date_start: date_start || null,
       date_end: date_end || null,
       estimated_hours: estimated_hours ? parseFloat(estimated_hours) : 0,
-      userID: user.id, // Koppel automatisch aan de ingelogde maker!
+      userID: assigned_user_id || user.id, // Koppel aan de geselecteerde gebruiker (standaard jezelf)
       isAdmin: false
     })
 

@@ -15,6 +15,7 @@ export async function updateTaskMetadata(formData: FormData) {
   const status = formData.get('status') as string
   const type = formData.get('type') as string
   const estimated_hours = formData.get('estimated_hours') as string
+  const assigned_user_id = formData.get('userID') as string
 
   if (!task_id) return
 
@@ -24,7 +25,8 @@ export async function updateTaskMetadata(formData: FormData) {
     .update({
       status,
       type,
-      estimated_hours: estimated_hours ? parseFloat(estimated_hours) : 0
+      estimated_hours: estimated_hours ? parseFloat(estimated_hours) : 0,
+      ...(assigned_user_id ? { userID: assigned_user_id } : {})
     })
     .eq('id', parseInt(task_id))
 
