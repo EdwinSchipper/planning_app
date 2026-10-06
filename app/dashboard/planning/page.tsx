@@ -50,7 +50,7 @@ export default async function PlanningPage({
     .neq('is_archived', true)
     .order('date_end', { ascending: true, nullsFirst: true })
     .order('created_at', { ascending: false })
-    .limit(3);
+    .limit(6);
 
   // Filter alleen jouw eigen taken als de toggle op 'Mijn Taken' staat
   if (filter === 'mine' && user) {
@@ -74,7 +74,7 @@ export default async function PlanningPage({
           </p>
         </div>
 
-        <Link 
+        <Link
           href="/dashboard/planning/nieuw"
           className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-blue-700 shadow-sm transition-colors w-full sm:w-auto justify-center"
         >
@@ -103,7 +103,7 @@ export default async function PlanningPage({
         {tasks && tasks.length > 0 ? (
           <>
             <div className="px-6 py-4 border-b border-gray-100 dark:border-zinc-800 bg-gray-50/50 dark:bg-zinc-800/20">
-              <h2 className="text-sm font-semibold text-gray-900 dark:text-white">Deze week</h2>
+              <h2 className="text-sm font-semibold text-gray-900 dark:text-white">Aankomende taken</h2>
             </div>
             <ul className="divide-y divide-gray-100 dark:divide-zinc-800">
               {tasks.map((task: Task) => (
@@ -139,7 +139,7 @@ export default async function PlanningPage({
                             {!task.date_start && !task.date_end && <span className="text-gray-400 dark:text-zinc-600 italic">Geen datum gepland</span>}
                           </span>
                         </div>
-                        
+
                         {task.estimated_hours ? (
                           <>
                             <span className="text-gray-300 dark:text-zinc-700">&bull;</span>
@@ -165,10 +165,10 @@ export default async function PlanningPage({
             </ul>
 
             {/* Metadata balk rechts onderin als er meer dan 3 taken zijn */}
-            {count && count > 3 && (
+            {count && count > 6 && (
               <div className="px-6 py-3 border-t border-gray-100 dark:border-zinc-800 bg-gray-50/30 dark:bg-zinc-800/20 flex justify-end">
                 <span className="text-xs text-gray-500 dark:text-zinc-400 italic">
-                  + {count - 3} andere {filter === 'mine' ? 'eigen ' : ''}taken verborgen in dit overzicht
+                  + {count - 6} andere {filter === 'mine' ? 'eigen ' : ''}taken verborgen in dit overzicht
                 </span>
               </div>
             )}
