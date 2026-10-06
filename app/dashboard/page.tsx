@@ -36,7 +36,7 @@ export default async function DashboardHome() {
       .eq('userID', user.id)
       .neq('is_archived', true)
       .neq('status', 'Voltooid')
-      .order('date_end', { ascending: true, nullsLast: true }) // Deadlines bovenaan
+      .order('date_end', { ascending: true, nullsFirst: false }) // Deadlines bovenaan
       .order('created_at', { ascending: false });
 
     if (myTasks) {
