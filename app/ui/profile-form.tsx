@@ -2,6 +2,7 @@
 
 import { useActionState } from 'react'
 import TextField from './input'
+import UIButton from './button'
 import { updateProfile } from '../dashboard/profiel/actions'
 
 export default function ProfileForm({ initialFullName, email, role }: { initialFullName: string, email: string, role: string }) {
@@ -50,13 +51,13 @@ export default function ProfileForm({ initialFullName, email, role }: { initialF
       </div>
 
       <div className="pt-4 border-t border-gray-100 dark:border-zinc-800">
-        <button
+        <UIButton
           type="submit"
           disabled={isPending}
-          className="w-full sm:w-auto py-2.5 px-6 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-medium focus:ring-4 focus:ring-blue-500/50 transition-all shadow-md shadow-blue-500/20 outline-none disabled:opacity-50 disabled:cursor-not-allowed"
+          className="w-full sm:w-auto"
         >
           {isPending ? 'Bezig met opslaan...' : 'Wijzigingen Opslaan'}
-        </button>
+        </UIButton>
       </div>
     </form>
   )

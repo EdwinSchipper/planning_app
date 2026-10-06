@@ -4,6 +4,7 @@
 import { useActionState } from 'react';
 import TextField from './input';
 import UICheckbox from './checkbox';
+import UIButton from './button';
 import { login } from '../(auth)/login/actions';
 
 export default function LoginForm() {
@@ -42,13 +43,13 @@ export default function LoginForm() {
         </div>
       </div>
 
-      <button
+      <UIButton
         type="submit"
         disabled={isPending}
-        className="w-full py-3 px-4 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-medium focus:ring-4 focus:ring-blue-500/50 transition-all shadow-lg shadow-blue-500/30 outline-none disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+        className="w-full"
       >
         {isPending ? 'Bezig met inloggen...' : 'Inloggen'}
-      </button>
+      </UIButton>
     </form>
   );
 }
