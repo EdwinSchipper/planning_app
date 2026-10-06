@@ -1,10 +1,33 @@
-export default function DashboardHome() {
+import { createClient } from '@/utils/supabase/server';
+
+export default async function DashboardHome() {
+  const supabase = await createClient();
+  
+  // Haal de huidige ingelogde gebruiker op
+  const { data: { user } } = await supabase.auth.getUser();
+  
+  // Haal het bijbehorende profiel (en dus de rol en naam) op
+  let role = 'user';
+  let fullName = '';
+  if (user) {
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('role, full_name')
+      .eq('id', user.id)
+      .single();
+      
+    if (profile) {
+      role = profile.role;
+      fullName = profile.full_name || '';
+    }
+  }
+
   return (
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-bold tracking-tight text-gray-900 dark:text-white">Dashboard</h1>
         <p className="mt-2 text-sm text-gray-500 dark:text-zinc-400">
-          Welkom terug! Hier is een overzicht van je planning en activiteiten.
+          Welkom terug, <span className="font-medium text-gray-900 dark:text-white">{fullName || user?.email}</span>! Je bent ingelogd als <span className="inline-flex items-center rounded-md bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-700/10 dark:bg-blue-900/30 dark:text-blue-400 dark:ring-blue-400/20">{role}</span>.
         </p>
       </div>
 

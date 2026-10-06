@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { HomeIcon, CalendarIcon, UserIcon, PowerIcon } from '@heroicons/react/24/outline';
+import { logout } from '@/app/(auth)/login/actions';
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const navigation = [
@@ -30,13 +31,15 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         </nav>
 
         <div className="p-4 border-t border-gray-200 dark:border-zinc-800">
-          <Link
-            href="/login"
-            className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/30 transition-all"
-          >
-            <PowerIcon className="h-5 w-5" />
-            Uitloggen
-          </Link>
+          <form action={logout}>
+            <button
+              type="submit"
+              className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/30 transition-all text-left"
+            >
+              <PowerIcon className="h-5 w-5" />
+              Uitloggen
+            </button>
+          </form>
         </div>
       </aside>
 
@@ -45,9 +48,11 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         {/* Simpele mobiele header */}
         <header className="md:hidden h-16 border-b border-gray-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 flex items-center justify-between px-4">
           <span className="text-lg font-bold text-gray-900 dark:text-white tracking-tight">Planning App</span>
-          <Link href="/login" className="text-red-500 p-2">
-            <PowerIcon className="h-6 w-6" />
-          </Link>
+          <form action={logout}>
+            <button type="submit" className="text-red-500 p-2 cursor-pointer outline-none">
+              <PowerIcon className="h-6 w-6" />
+            </button>
+          </form>
         </header>
 
         {/* Hier wordt de actieve pagina ingeladen */}
