@@ -11,7 +11,24 @@ interface Task {
   type: string;
   date_start?: string | null;
   date_end?: string | null;
+  estimated_hours?: number;
   userID: string;
+}
+
+function getStatusBadgeClasses(status: string) {
+  const base = "px-2 py-0.5 rounded-md border text-xs font-medium";
+  switch (status) {
+    case 'Open':
+      return `${base} text-blue-700 bg-blue-50 border-blue-200 dark:bg-blue-900/30 dark:text-blue-400 dark:border-blue-800`;
+    case 'In Behandeling':
+      return `${base} text-amber-700 bg-amber-50 border-amber-200 dark:bg-amber-900/30 dark:text-amber-400 dark:border-amber-800`;
+    case 'Wacht op feedback':
+      return `${base} text-purple-700 bg-purple-50 border-purple-200 dark:bg-purple-900/30 dark:text-purple-400 dark:border-purple-800`;
+    case 'Voltooid':
+      return `${base} text-green-700 bg-green-50 border-green-200 dark:bg-green-900/30 dark:text-green-400 dark:border-green-800`;
+    default:
+      return `${base} text-gray-700 bg-gray-100 border-gray-200 dark:bg-zinc-800 dark:text-gray-300 dark:border-zinc-700`;
+  }
 }
 
 export default async function PlanningPage({
@@ -48,11 +65,11 @@ export default async function PlanningPage({
   }
 
   return (
-    <div className="space-y-6 max-w-5xl">
+    <div className="space-y-8 max-w-5xl">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-gray-900 dark:text-white">Planning & Taken</h1>
-          <p className="mt-2 text-sm text-gray-500 dark:text-zinc-400">
+          <h1 className="text-3xl font-bold tracking-tight text-gray-900 dark:text-white">Planning & Taken</h1>
+          <p className="mt-2 text-[15px] text-gray-500 dark:text-zinc-400">
             Overzicht van alle beschikbare projecten en taken.
           </p>
         </div>
@@ -94,35 +111,46 @@ export default async function PlanningPage({
                   <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
                     <div className="flex-1">
                       <div className="flex items-center gap-3 flex-wrap">
-                        <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                        <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
                           {task.task_title || "Naamloze Taak"}
                         </h3>
                         {task.status && (
-                          <span className="inline-flex items-center rounded-full bg-green-50 px-2.5 py-0.5 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-600/20 dark:bg-green-500/10 dark:text-green-400">
+                          <span className={getStatusBadgeClasses(task.status)}>
                             {task.status}
                           </span>
                         )}
                         {task.type && (
-                          <span className="inline-flex items-center rounded-full bg-gray-50 px-2.5 py-0.5 text-xs font-medium text-gray-600 ring-1 ring-inset ring-gray-500/10 dark:bg-zinc-800 dark:text-zinc-400">
+                          <span className="font-medium text-gray-600 dark:text-gray-400 bg-gray-50 dark:bg-zinc-800/50 px-2 py-0.5 rounded-md border border-gray-100 dark:border-zinc-800 text-xs">
                             {task.type}
                           </span>
                         )}
                       </div>
-                      <p className="mt-2 text-sm text-gray-600 dark:text-gray-400 line-clamp-2">
+                      <p className="mt-2.5 text-[15px] text-gray-600 dark:text-gray-400 line-clamp-2">
                         {task.task_content || "Geen omschrijving beschikbaar."}
                       </p>
 
-                      <div className="mt-4 flex items-center gap-4 text-xs text-gray-500 dark:text-zinc-500">
-                        {(task.date_start || task.date_end) && (
-                          <div className="flex items-center gap-1.5">
-                            <CalendarIcon className="w-4 h-4 shrink-0" />
-                            <span>
-                              {task.date_start && !task.date_end && `Vanaf ${task.date_start}`}
-                              {!task.date_start && task.date_end && `Deadline: ${task.date_end}`}
-                              {task.date_start && task.date_end && `${task.date_start} tot ${task.date_end}`}
-                            </span>
-                          </div>
-                        )}
+                      <div className="mt-5 flex items-center gap-4 text-xs text-gray-500 dark:text-zinc-500">
+                        <div className="flex items-center gap-1.5">
+                          <CalendarIcon className="w-4 h-4 shrink-0 opacity-70" />
+                          <span>
+                            {task.date_start && !task.date_end && `Vanaf ${task.date_start}`}
+                            {!task.date_start && task.date_end && <span className="text-red-600 dark:text-red-400 font-medium">Deadline: {task.date_end}</span>}
+                            {task.date_start && task.date_end && `${task.date_start} tot ${task.date_end}`}
+                            {!task.date_start && !task.date_end && <span className="text-gray-400 dark:text-zinc-600 italic">Geen datum gepland</span>}
+                          </span>
+                        </div>
+                        
+                        {task.estimated_hours ? (
+                          <>
+                            <span className="text-gray-300 dark:text-zinc-700">&bull;</span>
+                            <div className="flex items-center gap-1.5">
+                              <svg className="w-4 h-4 opacity-70" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v12m-3-2.818l.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                              </svg>
+                              <span>{task.estimated_hours} uur</span>
+                            </div>
+                          </>
+                        ) : null}
                       </div>
                     </div>
 
