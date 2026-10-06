@@ -1,5 +1,7 @@
 import { createClient } from '@/utils/supabase/server';
 import Link from 'next/link';
+import { CalendarIcon, TrashIcon, ChevronRightIcon } from '@heroicons/react/24/outline';
+import { revalidatePath } from 'next/cache';
 
 function getStatusBadgeClasses(status: string) {
   const base = "px-2 py-0.5 rounded-md border text-xs font-medium";
@@ -18,6 +20,23 @@ function getStatusBadgeClasses(status: string) {
 }
 
 export default async function DashboardHome() {
+  // Server action to delete a task
+  async function deleteTaskAction(formData: FormData) {
+    'use server'
+    const supabase = await createClient();
+    const task_id = formData.get('task_id') as string;
+    
+    if (!task_id) return;
+    
+    const { error } = await supabase.from('db_tasks').delete().eq('id', parseInt(task_id));
+    if (error) {
+      console.error("Fout bij verwijderen taak:", error.message);
+    } else {
+      revalidatePath('/dashboard');
+      revalidatePath('/dashboard/planning');
+    }
+  }
+
   const supabase = await createClient();
 
   // Haal de huidige ingelogde gebruiker op
@@ -101,44 +120,56 @@ export default async function DashboardHome() {
         <div className="divide-y divide-gray-100 dark:divide-zinc-800">
           {topTasks.length > 0 ? (
             topTasks.map(task => (
-              <div key={task.id} className="px-6 py-4 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-zinc-800/50 transition-colors group">
-                <div className="flex flex-col gap-2 pr-4">
-                  <Link href={`/dashboard/planning/${task.id}`} className="text-base font-semibold text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+              <div key={task.id} className="p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:bg-gray-50 dark:hover:bg-zinc-800/50 transition-colors group">
+                <div className="flex-1 min-w-0">
+                  <Link href={`/dashboard/planning/${task.id}`} className="text-base font-semibold text-gray-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400 transition-colors truncate block">
                     {task.task_title || "Naamloze Taak"}
                   </Link>
-                  <div className="flex flex-wrap items-center gap-3 text-xs text-gray-500 dark:text-zinc-500">
+                  
+                  <div className="mt-2 flex items-center gap-3 flex-wrap text-xs text-gray-500 dark:text-zinc-400">
                     <span className={getStatusBadgeClasses(task.status || 'Open')}>{task.status || 'Open'}</span>
-
-                    <span className="flex items-center gap-1.5">
-                      <svg className="w-3.5 h-3.5 opacity-70" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
-                      </svg>
-                      {task.date_end ? (
-                        <span className="text-red-600 dark:text-red-400 font-medium">{task.date_end}</span>
-                      ) : (
-                        <span className="text-gray-400 dark:text-zinc-600 italic">Geen deadline</span>
-                      )}
-                    </span>
+                    
+                    {task.type && (
+                      <span className="font-medium text-gray-600 dark:text-gray-400 bg-gray-50 dark:bg-zinc-800/50 px-2 py-0.5 rounded-md border border-gray-100 dark:border-zinc-800">
+                        {task.type}
+                      </span>
+                    )}
+                    
+                    <div className="flex items-center gap-1.5 ml-1">
+                      <CalendarIcon className="w-4 h-4 shrink-0 opacity-70" />
+                      <span>
+                        {task.date_start && !task.date_end && `Vanaf ${task.date_start}`}
+                        {!task.date_start && task.date_end && <span className="text-red-600 dark:text-red-400 font-medium">Deadline: {task.date_end}</span>}
+                        {task.date_start && task.date_end && `${task.date_start} - ${task.date_end}`}
+                        {!task.date_start && !task.date_end && <span className="text-gray-400 dark:text-zinc-600 italic">Geen datum</span>}
+                      </span>
+                    </div>
 
                     {task.estimated_hours > 0 && (
                       <>
                         <span className="text-gray-300 dark:text-zinc-700">&bull;</span>
-                        <span className="flex items-center gap-1.5">
-                          <svg className="w-3.5 h-3.5 opacity-70" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor">
+                        <div className="flex items-center gap-1.5">
+                          <svg className="w-4 h-4 opacity-70" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v12m-3-2.818l.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
                           </svg>
-                          {task.estimated_hours} uur
-                        </span>
+                          <span>{task.estimated_hours} uur</span>
+                        </div>
                       </>
                     )}
                   </div>
                 </div>
 
-                <Link href={`/dashboard/planning/${task.id}`} className="shrink-0 p-2 text-gray-400 hover:text-blue-600 dark:hover:text-blue-400">
-                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
-                  </svg>
-                </Link>
+                <div className="shrink-0 flex items-center gap-2">
+                  <form action={deleteTaskAction}>
+                    <input type="hidden" name="task_id" value={task.id} />
+                    <button type="submit" title="Taak verwijderen" className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-md transition-colors">
+                      <TrashIcon className="w-5 h-5" />
+                    </button>
+                  </form>
+                  <Link href={`/dashboard/planning/${task.id}`} title="Details bekijken" className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded-md transition-colors">
+                    <ChevronRightIcon className="w-5 h-5" />
+                  </Link>
+                </div>
               </div>
             ))
           ) : (

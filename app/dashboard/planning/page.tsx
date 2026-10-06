@@ -1,6 +1,7 @@
 import { createClient } from '@/utils/supabase/server';
 import Link from 'next/link';
-import { PlusIcon, CalendarIcon, ClipboardDocumentListIcon } from '@heroicons/react/24/outline';
+import { PlusIcon, CalendarIcon, ClipboardDocumentListIcon, TrashIcon, ChevronRightIcon } from '@heroicons/react/24/outline';
+import { revalidatePath } from 'next/cache';
 
 // We definiëren hier de structuur van een taak zoals hij in je database staat
 interface Task {
@@ -31,11 +32,44 @@ function getStatusBadgeClasses(status: string) {
   }
 }
 
+function isThisWeek(dateString?: string | null) {
+  if (!dateString) return false;
+  const targetDate = new Date(dateString);
+  if (isNaN(targetDate.getTime())) return false;
+  
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  
+  const dayOfWeek = today.getDay(); 
+  const daysUntilSunday = dayOfWeek === 0 ? 0 : 7 - dayOfWeek;
+  const endOfWeek = new Date(today);
+  endOfWeek.setDate(today.getDate() + daysUntilSunday);
+  endOfWeek.setHours(23, 59, 59, 999);
+  
+  return targetDate <= endOfWeek;
+}
+
 export default async function PlanningPage({
   searchParams,
 }: {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>
 }) {
+  // Server action to delete a task
+  async function deleteTaskAction(formData: FormData) {
+    'use server'
+    const supabase = await createClient();
+    const task_id = formData.get('task_id') as string;
+    
+    if (!task_id) return;
+    
+    const { error } = await supabase.from('db_tasks').delete().eq('id', parseInt(task_id));
+    if (error) {
+      console.error("Fout bij verwijderen taak:", error.message);
+    } else {
+      revalidatePath('/dashboard/planning');
+    }
+  }
+
   // Lees de huidige URL uit (bijv ?filter=mine)
   const resolvedSearchParams = await searchParams;
   const filter = resolvedSearchParams.filter || 'all';
@@ -43,14 +77,14 @@ export default async function PlanningPage({
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
-  // Bouw de database query op (maximaal 3 openstaande taken, maar we tellen wel het totaal)
+  // Bouw de database query op (we halen meer openstaande taken op voor de groepering)
   let query = supabase
     .from('db_tasks')
     .select('*', { count: 'exact' })
     .neq('is_archived', true)
     .order('date_end', { ascending: true, nullsFirst: true })
     .order('created_at', { ascending: false })
-    .limit(6);
+    .limit(50);
 
   // Filter alleen jouw eigen taken als de toggle op 'Mijn Taken' staat
   if (filter === 'mine' && user) {
@@ -63,6 +97,68 @@ export default async function PlanningPage({
   if (error) {
     console.error("Fout bij ophalen van taken:", error.message);
   }
+
+  const tasksThisWeek = tasks?.filter(t => t.date_end ? isThisWeek(t.date_end) : (t.date_start ? isThisWeek(t.date_start) : false)) || [];
+  const tasksFuture = tasks?.filter(t => t.date_end ? !isThisWeek(t.date_end) : (t.date_start ? !isThisWeek(t.date_start) : true)) || [];
+
+  const renderTask = (task: Task) => (
+    <li key={task.id} className="p-4 sm:p-5 hover:bg-gray-50 dark:hover:bg-zinc-800/50 transition-colors group">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="flex-1 min-w-0">
+          <h3 className="text-base font-semibold text-gray-900 dark:text-white truncate">
+            {task.task_title || "Naamloze Taak"}
+          </h3>
+          
+          <div className="mt-2 flex items-center gap-3 flex-wrap text-xs text-gray-500 dark:text-zinc-400">
+            {task.status && (
+              <span className={getStatusBadgeClasses(task.status)}>
+                {task.status}
+              </span>
+            )}
+            {task.type && (
+              <span className="font-medium text-gray-600 dark:text-gray-400 bg-gray-50 dark:bg-zinc-800/50 px-2 py-0.5 rounded-md border border-gray-100 dark:border-zinc-800">
+                {task.type}
+              </span>
+            )}
+            
+            <div className="flex items-center gap-1.5 ml-1">
+              <CalendarIcon className="w-4 h-4 shrink-0 opacity-70" />
+              <span>
+                {task.date_start && !task.date_end && `Vanaf ${task.date_start}`}
+                {!task.date_start && task.date_end && <span className="text-red-600 dark:text-red-400 font-medium">Deadline: {task.date_end}</span>}
+                {task.date_start && task.date_end && `${task.date_start} - ${task.date_end}`}
+                {!task.date_start && !task.date_end && <span className="text-gray-400 dark:text-zinc-600 italic">Geen datum</span>}
+              </span>
+            </div>
+
+            {task.estimated_hours ? (
+              <>
+                <span className="text-gray-300 dark:text-zinc-700">&bull;</span>
+                <div className="flex items-center gap-1.5">
+                  <svg className="w-4 h-4 opacity-70" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v12m-3-2.818l.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                  </svg>
+                  <span>{task.estimated_hours} uur</span>
+                </div>
+              </>
+            ) : null}
+          </div>
+        </div>
+
+        <div className="shrink-0 flex items-center gap-2">
+          <form action={deleteTaskAction}>
+            <input type="hidden" name="task_id" value={task.id} />
+            <button type="submit" title="Taak verwijderen" className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-md transition-colors">
+              <TrashIcon className="w-5 h-5" />
+            </button>
+          </form>
+          <Link href={`/dashboard/planning/${task.id}`} title="Details bekijken" className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded-md transition-colors">
+            <ChevronRightIcon className="w-5 h-5" />
+          </Link>
+        </div>
+      </div>
+    </li>
+  );
 
   return (
     <div className="space-y-8 max-w-5xl">
@@ -99,81 +195,41 @@ export default async function PlanningPage({
         </Link>
       </div>
 
-      <div className="bg-white dark:bg-zinc-900 rounded-xl shadow-sm border border-gray-100 dark:border-zinc-800 overflow-hidden">
-        {tasks && tasks.length > 0 ? (
-          <>
-            <div className="px-6 py-4 border-b border-gray-100 dark:border-zinc-800 bg-gray-50/50 dark:bg-zinc-800/20">
-              <h2 className="text-sm font-semibold text-gray-900 dark:text-white">Aankomende taken</h2>
-            </div>
-            <ul className="divide-y divide-gray-100 dark:divide-zinc-800">
-              {tasks.map((task: Task) => (
-                <li key={task.id} className="p-6 hover:bg-gray-50 dark:hover:bg-zinc-800/50 transition-colors">
-                  <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-3 flex-wrap">
-                        <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
-                          {task.task_title || "Naamloze Taak"}
-                        </h3>
-                        {task.status && (
-                          <span className={getStatusBadgeClasses(task.status)}>
-                            {task.status}
-                          </span>
-                        )}
-                        {task.type && (
-                          <span className="font-medium text-gray-600 dark:text-gray-400 bg-gray-50 dark:bg-zinc-800/50 px-2 py-0.5 rounded-md border border-gray-100 dark:border-zinc-800 text-xs">
-                            {task.type}
-                          </span>
-                        )}
-                      </div>
-                      <p className="mt-2.5 text-[15px] text-gray-600 dark:text-gray-400 line-clamp-2">
-                        {task.task_content || "Geen omschrijving beschikbaar."}
-                      </p>
-
-                      <div className="mt-5 flex items-center gap-4 text-xs text-gray-500 dark:text-zinc-500">
-                        <div className="flex items-center gap-1.5">
-                          <CalendarIcon className="w-4 h-4 shrink-0 opacity-70" />
-                          <span>
-                            {task.date_start && !task.date_end && `Vanaf ${task.date_start}`}
-                            {!task.date_start && task.date_end && <span className="text-red-600 dark:text-red-400 font-medium">Deadline: {task.date_end}</span>}
-                            {task.date_start && task.date_end && `${task.date_start} tot ${task.date_end}`}
-                            {!task.date_start && !task.date_end && <span className="text-gray-400 dark:text-zinc-600 italic">Geen datum gepland</span>}
-                          </span>
-                        </div>
-
-                        {task.estimated_hours ? (
-                          <>
-                            <span className="text-gray-300 dark:text-zinc-700">&bull;</span>
-                            <div className="flex items-center gap-1.5">
-                              <svg className="w-4 h-4 opacity-70" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v12m-3-2.818l.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
-                              </svg>
-                              <span>{task.estimated_hours} uur</span>
-                            </div>
-                          </>
-                        ) : null}
-                      </div>
-                    </div>
-
-                    <div className="shrink-0 pt-1">
-                      <Link href={`/dashboard/planning/${task.id}`} className="text-sm font-medium text-blue-600 hover:text-blue-500 dark:text-blue-400">
-                        Details bekijken &rarr;
-                      </Link>
-                    </div>
-                  </div>
-                </li>
-              ))}
-            </ul>
-
-            {/* Metadata balk rechts onderin als er meer dan 3 taken zijn */}
-            {count && count > 6 && (
-              <div className="px-6 py-3 border-t border-gray-100 dark:border-zinc-800 bg-gray-50/30 dark:bg-zinc-800/20 flex justify-end">
-                <span className="text-xs text-gray-500 dark:text-zinc-400 italic">
-                  + {count - 6} andere {filter === 'mine' ? 'eigen ' : ''}taken verborgen in dit overzicht
-                </span>
+      {tasks && tasks.length > 0 ? (
+        <div className="space-y-6">
+          {tasksThisWeek.length > 0 && (
+            <div className="bg-white dark:bg-zinc-900 rounded-xl shadow-sm border border-gray-100 dark:border-zinc-800 overflow-hidden">
+              <div className="px-6 py-4 border-b border-gray-100 dark:border-zinc-800 bg-gray-50/50 dark:bg-zinc-800/20">
+                <h2 className="text-sm font-semibold text-gray-900 dark:text-white">Deze week</h2>
               </div>
-            )}
-          </>
-        ) : (
+              <ul className="divide-y divide-gray-100 dark:divide-zinc-800">
+                {tasksThisWeek.map(task => renderTask(task))}
+              </ul>
+            </div>
+          )}
+
+          {tasksFuture.length > 0 && (
+            <div className="bg-white dark:bg-zinc-900 rounded-xl shadow-sm border border-gray-100 dark:border-zinc-800 overflow-hidden">
+              <div className="px-6 py-4 border-b border-gray-100 dark:border-zinc-800 bg-gray-50/50 dark:bg-zinc-800/20">
+                <h2 className="text-sm font-semibold text-gray-900 dark:text-white">Verder in de toekomst</h2>
+              </div>
+              <ul className="divide-y divide-gray-100 dark:divide-zinc-800">
+                {tasksFuture.map(task => renderTask(task))}
+              </ul>
+            </div>
+          )}
+
+          {/* Metadata info als er meer dan 50 taken zijn */}
+          {count && count > 50 && (
+            <div className="text-center pt-2">
+              <span className="text-xs text-gray-500 dark:text-zinc-400 italic">
+                + {count - 50} andere {filter === 'mine' ? 'eigen ' : ''}taken verborgen in dit overzicht
+              </span>
+            </div>
+          )}
+        </div>
+      ) : (
+        <div className="bg-white dark:bg-zinc-900 rounded-xl shadow-sm border border-gray-100 dark:border-zinc-800 overflow-hidden">
           <div className="p-12 text-center">
             <div className="mx-auto h-12 w-12 rounded-full bg-gray-100 dark:bg-zinc-800 flex items-center justify-center mb-4">
               <ClipboardDocumentListIcon className="h-6 w-6 text-gray-400 dark:text-zinc-500" />
@@ -183,8 +239,8 @@ export default async function PlanningPage({
               {filter === 'mine' ? "Je hebt momenteel geen taken aan jezelf gekoppeld staan." : "Er staan momenteel nog geen taken in de database."}
             </p>
           </div>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   );
 }
