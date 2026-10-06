@@ -1,45 +1,63 @@
-import Image from "next/image";
+import { Field, Label, Checkbox } from '@headlessui/react';
+import TextField from '../ui/input';
 
 export default function Login() {
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert h-5 w-[100px]"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the{" "}
-            <code className="rounded bg-black/[.06] px-1.5 py-0.5 font-mono text-[0.9em] dark:bg-white/[.08]">
-              page.tsx
-            </code>{" "}
-            file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <div className="flex min-h-screen flex-col items-center justify-center bg-gray-50 dark:bg-zinc-950 p-4 font-sans">
+      <div className="w-full max-w-md bg-white dark:bg-zinc-900 rounded-2xl shadow-xl p-8 border border-gray-100 dark:border-zinc-800">
+        <div className="mb-8 text-center">
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Welkom terug</h1>
+          <p className="text-gray-500 dark:text-zinc-400 mt-2">Log in op je account om verder te gaan</p>
         </div>
 
-      </main>
+
+        <form className="space-y-6">
+          <TextField
+            label="E-mailadres"
+            name="email"
+            type="email"
+            required
+            placeholder="naam@bedrijf.nl"
+          />
+
+          <TextField
+            label="Wachtwoord"
+            name="password"
+            type="password"
+            required
+            placeholder="••••••••"
+          />
+
+          <div className="flex items-center justify-between">
+            <Field className="flex items-center gap-2">
+              <Checkbox
+                name="remember-me"
+                className="group block h-4 w-4 rounded border border-gray-300 bg-white data-[checked]:bg-blue-600 data-[checked]:border-blue-600 dark:border-zinc-700 dark:bg-zinc-900 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-zinc-900 outline-none transition-all"
+              >
+                <svg className="stroke-white opacity-0 group-data-[checked]:opacity-100" viewBox="0 0 14 14" fill="none">
+                  <path d="M3 8L6 11L11 3.5" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </Checkbox>
+              <Label className="block text-sm text-gray-700 dark:text-zinc-300 cursor-pointer">
+                Onthoud mij
+              </Label>
+            </Field>
+
+            <div className="text-sm">
+              <a href="#" className="font-medium text-blue-600 hover:text-blue-500 dark:text-blue-400">
+                Wachtwoord vergeten?
+              </a>
+            </div>
+          </div>
+
+          <button
+            type="submit"
+            className="w-full py-3 px-4 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-medium focus:ring-4 focus:ring-blue-500/50 transition-all shadow-lg shadow-blue-500/30 outline-none"
+          >
+            Inloggen
+          </button>
+        </form>
+      </div>
     </div>
   );
-}  
+}
