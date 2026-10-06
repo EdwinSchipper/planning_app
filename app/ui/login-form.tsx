@@ -2,8 +2,8 @@
 
 // useActionState is a React Hook that lets you update state with side effects using Actions.
 import { useActionState } from 'react';
-import { Field, Label, Checkbox } from '@headlessui/react';
 import TextField from './input';
+import UICheckbox from './checkbox';
 import { login } from '../(auth)/login/actions';
 
 export default function LoginForm() {
@@ -34,20 +34,7 @@ export default function LoginForm() {
       />
 
       <div className="flex items-center justify-between">
-        <Field className="flex items-center gap-2">
-          <Checkbox
-            name="remember-me"
-            className="group block h-4 w-4 rounded border border-gray-300 bg-white data-[checked]:bg-blue-600 data-[checked]:border-blue-600 dark:border-zinc-700 dark:bg-zinc-900 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-zinc-900 outline-none transition-all"
-          >
-            <svg className="stroke-white opacity-0 group-data-[checked]:opacity-100" viewBox="0 0 14 14" fill="none">
-              <path d="M3 8L6 11L11 3.5" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-          </Checkbox>
-          <Label className="block text-sm text-gray-700 dark:text-zinc-300 cursor-pointer">
-            Onthoud mij
-          </Label>
-        </Field>
-
+        <UICheckbox name="remember-me" label="Onthoud mij" />
         <div className="text-sm">
           <a href="#" className="font-medium text-blue-600 hover:text-blue-500 dark:text-blue-400">
             Wachtwoord vergeten?
