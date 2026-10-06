@@ -109,7 +109,7 @@ export default async function TaskDetailsPage({ params }: { params: Promise<{ id
 
         {/* MIDDEN: Subtiele 'Properties' balk (geïnspireerd op moderne tools zoals Linear/Notion) */}
         <div className="px-8 sm:px-10 py-4 bg-gray-50/50 dark:bg-zinc-800/30 border-y border-gray-100 dark:border-zinc-800">
-          <form action={updateTaskMetadata} className="flex flex-wrap items-center gap-6">
+          <form key={`${task.id}-${task.status}-${task.estimated_hours}-${task.userID}`} action={updateTaskMetadata} className="flex flex-wrap items-center gap-6">
             <input type="hidden" name="task_id" value={task.id} />
             
             <UIInlineSelect 
