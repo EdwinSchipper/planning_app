@@ -4,6 +4,14 @@ Een moderne, gestroomlijnde task management en planningsapplicatie. Ontworpen om
 
 ![Schermafbeelding van de app](https://nextjs.org/icons/next.svg) <!-- Vervang dit later eventueel door een echte screenshot van je app -->
 
+## 🌐 Live Demo (Test de app)
+
+Je kunt deze applicatie zelf uitproberen via de live demo op Vercel. Gebruik hiervoor het volgende testaccount:
+- **E-mail:** `demo@fakeaccount.nl`
+- **Wachtwoord:** `5,-SwDjR^F7U.Ca`
+
+*(Let op: Dit account heeft beperkte rechten. Respecteer de data van anderen in de demo-omgeving).*
+
 ## 🚀 Functionaliteiten
 
 - **Realtime Dashboard:** Direct inzicht in openstaande taken, geschatte uren en naderende deadlines.
