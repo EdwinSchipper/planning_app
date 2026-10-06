@@ -2,6 +2,7 @@ import { createClient } from '@/utils/supabase/server'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { UserIcon, CalendarIcon, ArrowLeftIcon } from '@heroicons/react/24/outline'
+import { UIInlineField, UIInlineSelect } from '@/app/ui/inline-field'
 import { updateTaskMetadata, archiveTask, deleteTask } from './actions'
 
 export default async function TaskDetailsPage({ params }: { params: Promise<{ id: string }> }) {
@@ -105,31 +106,37 @@ export default async function TaskDetailsPage({ params }: { params: Promise<{ id
           <form action={updateTaskMetadata} className="flex flex-wrap items-center gap-6">
             <input type="hidden" name="task_id" value={task.id} />
             
-            <div className="flex items-center gap-3">
-              <span className="text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-zinc-500">Status</span>
-              <select 
-                name="status" 
-                defaultValue={task.status || 'Open'} 
-                className="text-sm font-medium text-gray-700 dark:text-gray-200 bg-transparent hover:bg-gray-200 dark:hover:bg-zinc-700 border border-transparent hover:border-gray-300 dark:hover:border-zinc-600 rounded-md px-2 py-1 focus:ring-2 focus:ring-blue-500 outline-none transition-all cursor-pointer appearance-none pr-6 relative"
-                style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' fill=\'none\' viewBox=\'0 0 24 24\' stroke=\'%239CA3AF\'%3E%3Cpath stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'2\' d=\'M19 9l-7 7-7-7\'%3E%3C/path%3E%3C/svg%3E")', backgroundPosition: 'right 4px center', backgroundRepeat: 'no-repeat', backgroundSize: '14px' }}
-              >
-                <option className="bg-white dark:bg-zinc-800">Open</option>
-                <option className="bg-white dark:bg-zinc-800">In Behandeling</option>
-                <option className="bg-white dark:bg-zinc-800">Wacht op feedback</option>
-                <option className="bg-white dark:bg-zinc-800">Voltooid</option>
-              </select>
-            </div>
+            <UIInlineSelect 
+              label="Status"
+              name="status"
+              defaultValue={task.status || 'Open'}
+              options={[
+                { value: 'Open', label: 'Open' },
+                { value: 'In Behandeling', label: 'In Behandeling' },
+                { value: 'Wacht op feedback', label: 'Wacht op feedback' },
+                { value: 'Voltooid', label: 'Voltooid' }
+              ]}
+            />
 
-            <div className="flex items-center gap-3">
-              <span className="text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-zinc-500">Type</span>
-              <input 
-                type="text" 
-                name="type" 
-                defaultValue={task.type || ''} 
-                placeholder="Bijv. Design"
-                className="text-sm font-medium text-gray-700 dark:text-gray-200 bg-transparent hover:bg-gray-200 dark:hover:bg-zinc-700 border border-transparent hover:border-gray-300 dark:hover:border-zinc-600 rounded-md px-2 py-1 focus:ring-2 focus:ring-blue-500 outline-none transition-all w-32 placeholder-gray-300 dark:placeholder-zinc-600" 
-              />
-            </div>
+            <UIInlineField
+              label="Type"
+              name="type"
+              type="text"
+              defaultValue={task.type || ''}
+              placeholder="Bijv. Design"
+              className="w-32"
+            />
+            
+            <UIInlineField
+              label="Uren"
+              name="estimated_hours"
+              type="number"
+              step="0.25"
+              min="0"
+              defaultValue={task.estimated_hours || ''}
+              placeholder="0"
+              className="w-16 text-center"
+            />
             
             <button type="submit" className="ml-auto text-sm font-medium text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 transition-colors px-3 py-1.5 rounded-md hover:bg-blue-50 dark:hover:bg-blue-900/30">
               Opslaan

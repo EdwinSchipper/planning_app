@@ -14,15 +14,17 @@ export async function updateTaskMetadata(formData: FormData) {
   const task_id = formData.get('task_id') as string
   const status = formData.get('status') as string
   const type = formData.get('type') as string
+  const estimated_hours = formData.get('estimated_hours') as string
 
   if (!task_id) return
 
-  // Werk de status en type bij in de database
+  // Werk de status, type en uren bij in de database
   const { error } = await supabase
     .from('db_tasks')
     .update({
       status,
-      type
+      type,
+      estimated_hours: estimated_hours ? parseFloat(estimated_hours) : 0
     })
     .eq('id', parseInt(task_id))
 

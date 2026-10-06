@@ -31,8 +31,8 @@ export default function NieuweTaakPage() {
             </div>
           )}
 
-          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
-            <div className="sm:col-span-2">
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-6">
+            <div className="sm:col-span-6">
               <TextField
                 label="Titel van de taak *"
                 name="task_title"
@@ -42,7 +42,7 @@ export default function NieuweTaakPage() {
               />
             </div>
 
-            <div>
+            <div className="sm:col-span-2">
               <TextField
                 label="Categorie / Type"
                 name="type"
@@ -51,7 +51,7 @@ export default function NieuweTaakPage() {
               />
             </div>
 
-            <div>
+            <div className="sm:col-span-2">
               <UIDropdown
                 label="Status"
                 name="status"
@@ -65,6 +65,17 @@ export default function NieuweTaakPage() {
             </div>
 
             <div className="sm:col-span-2">
+              <TextField
+                label="Uren (Inschatting)"
+                name="estimated_hours"
+                type="number"
+                step="0.25"
+                min="0"
+                placeholder="Bijv. 2.5"
+              />
+            </div>
+
+            <div className="sm:col-span-6">
               <UITextarea
                 label="Omschrijving *"
                 name="task_content"
@@ -74,7 +85,7 @@ export default function NieuweTaakPage() {
               />
             </div>
 
-            <div>
+            <div className="sm:col-span-3">
               <TextField
                 label="Startdatum (Optioneel)"
                 name="date_start"
@@ -82,7 +93,7 @@ export default function NieuweTaakPage() {
               />
             </div>
 
-            <div>
+            <div className="sm:col-span-3">
               <TextField
                 label="Einddatum / Deadline (Optioneel)"
                 name="date_end"
