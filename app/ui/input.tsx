@@ -2,7 +2,7 @@
 import { Description, Field, Input, Label } from '@headlessui/react'
 
 // Typescript validation
-// Door extends React.InputHTMLAttributes<HTMLInputElement> te gebruiken, zeg je tegen TypeScript: "Mijn TextFieldProps heeft een label en een description, én accepteert verder gewoon alles wat een normaal HTML <input> veld ook accepteert."
+// Door extends React.InputHTMLAttributes<HTMLInputElement> te gebruiken: "Mijn TextFieldProps heeft een label en een description, én accepteert verder gewoon alles wat een normaal HTML <input> veld ook accepteert."
 interface TextFieldProps extends React.InputHTMLAttributes<HTMLInputElement> {
     label: string;
     description?: string;
