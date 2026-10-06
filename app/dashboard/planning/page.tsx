@@ -55,13 +55,15 @@ export default async function PlanningPage({
           </p>
         </div>
 
-        {/* Placeholder voor eventuele 'Taak Toevoegen' knop */}
-        <button className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-blue-700 shadow-sm transition-colors w-full sm:w-auto justify-center">
+        <Link 
+          href="/dashboard/planning/nieuw"
+          className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-blue-700 shadow-sm transition-colors w-full sm:w-auto justify-center"
+        >
           <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
           </svg>
           Nieuwe Taak
-        </button>
+        </Link>
       </div>
 
       {/* De Toggle (Tabbladen) */}

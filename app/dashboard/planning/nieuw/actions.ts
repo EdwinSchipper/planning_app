@@ -1,0 +1,50 @@
+'use server'
+
+import { createClient } from '@/utils/supabase/server'
+import { revalidatePath } from 'next/cache'
+import { redirect } from 'next/navigation'
+
+export async function createTask(prevState: any, formData: FormData) {
+  const supabase = await createClient()
+  
+  // Controleer of de gebruiker is ingelogd
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) {
+    return { error: "Je moet ingelogd zijn om een taak aan te maken." }
+  }
+
+  // Haal de waardes uit het formulier
+  const task_title = formData.get('task_title') as string
+  const task_content = formData.get('task_content') as string
+  const type = formData.get('type') as string
+  const status = formData.get('status') as string
+  const date_start = formData.get('date_start') as string
+  const date_end = formData.get('date_end') as string
+
+  // Simpele validatie
+  if (!task_title || !task_content) {
+    return { error: "Vul op z'n minst een titel en omschrijving in." }
+  }
+
+  // Sla op in de database
+  const { error } = await supabase
+    .from('db_tasks')
+    .insert({
+      task_title,
+      task_content,
+      type: type || 'Algemeen',
+      status: status || 'Open',
+      date_start: date_start || null,
+      date_end: date_end || null,
+      userID: user.id, // Koppel automatisch aan de ingelogde maker!
+      isAdmin: false
+    })
+
+  if (error) {
+    return { error: "Er is iets misgegaan bij het opslaan: " + error.message }
+  }
+
+  // Als alles goed ging: vernieuw de planning pagina (zodat de taak erbij staat) en ga terug
+  revalidatePath('/dashboard/planning')
+  redirect('/dashboard/planning')
+}
