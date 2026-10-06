@@ -5,8 +5,35 @@ import { UserIcon, CalendarIcon, ArrowLeftIcon } from '@heroicons/react/24/outli
 import { UIInlineField, UIInlineSelect } from '@/app/ui/inline-field'
 import { updateTask, archiveTask, deleteTask } from './actions'
 import ClientTaskForm from './client-form'
+import ClientDateRange from './client-date-range'
 
 export default async function TaskDetailsPage({ params }: { params: Promise<{ id: string }> }) {
+  // Helper om de actie-tekst in stukjes op te knippen zodat "naar" of "t/m" grijs worden, 
+  // en de properties + waarden mooi bold naar voren komen voor scanbaarheid.
+  const formatActionText = (actionStr: string) => {
+    let text = actionStr.charAt(0).toLowerCase() + actionStr.slice(1);
+    
+    // Splits op ' naar ', ' t/m ', en haakjes
+    const parts = text.split(/( naar | t\/m |\(|\))/g).filter(Boolean);
+    
+    return parts.map((part, idx) => {
+      if ([' naar ', ' t/m ', '(', ')'].includes(part)) {
+        const trimmed = part.trim();
+        const hasLeading = part.startsWith(' ');
+        const hasTrailing = part.endsWith(' ');
+        
+        return (
+          <span key={idx}>
+            {hasLeading ? ' ' : ''}
+            <span className="italic">{trimmed}</span>
+            {hasTrailing ? ' ' : ''}
+          </span>
+        );
+      }
+      return <span key={idx} className="font-medium text-gray-800 dark:text-gray-200">{part}</span>;
+    });
+  };
+
   const resolvedParams = await params
   const supabase = await createClient()
 
@@ -77,7 +104,7 @@ export default async function TaskDetailsPage({ params }: { params: Promise<{ id
       <div className="mb-6 px-2">
         <Link
           href="/dashboard/planning"
-          className="inline-flex items-center text-sm font-medium text-gray-400 hover:text-gray-900 dark:text-zinc-500 dark:hover:text-white transition-colors gap-2"
+          className="inline-flex items-center text-sm font-medium text-gray-400 hover:text-gray-900 dark:text-zinc-500 dark:hover:text-white transition-colors gap-2 cursor-pointer"
         >
           <ArrowLeftIcon className="w-4 h-4" />
           Terug naar overzicht
@@ -103,14 +130,14 @@ export default async function TaskDetailsPage({ params }: { params: Promise<{ id
               <div className="flex items-center gap-3 shrink-0">
                 <button
                   formAction={archiveTask}
-                  className="inline-flex items-center justify-center rounded-lg px-3 py-1.5 text-sm font-medium text-gray-600 dark:text-zinc-400 hover:bg-gray-100 dark:hover:bg-zinc-800 transition-colors"
+                  className="inline-flex items-center justify-center rounded-lg px-3 py-1.5 text-sm font-medium text-gray-600 dark:text-zinc-400 hover:bg-gray-100 dark:hover:bg-zinc-800 transition-colors cursor-pointer"
                   title="Verberg deze taak uit het overzicht"
                 >
                   Archiveren
                 </button>
                 <button
                   formAction={deleteTask}
-                  className="inline-flex items-center justify-center rounded-lg px-3 py-1.5 text-sm font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors"
+                  className="inline-flex items-center justify-center rounded-lg px-3 py-1.5 text-sm font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors cursor-pointer"
                   title="Definitief verwijderen uit database"
                 >
                   Verwijderen
@@ -126,24 +153,10 @@ export default async function TaskDetailsPage({ params }: { params: Promise<{ id
               <div className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300 px-2 py-1">
                 <CalendarIcon className="w-4 h-4 text-gray-400 dark:text-zinc-500" />
                 <div className="flex items-center gap-2">
-                  <input
-                    type="date"
-                    name="date_start"
-                    defaultValue={task.date_start || ''}
-                    className="bg-transparent border border-transparent hover:border-gray-200 dark:hover:border-zinc-700 rounded p-1 focus:ring-2 focus:ring-blue-500 outline-none text-gray-600 dark:text-zinc-400"
-                    title="Startdatum"
-                    readOnly={isReadOnly}
-                    disabled={isReadOnly}
-                  />
-                  <span className="text-gray-400 dark:text-zinc-500">&rarr;</span>
-                  <input
-                    type="date"
-                    name="date_end"
-                    defaultValue={task.date_end || ''}
-                    className="bg-transparent border border-transparent hover:border-gray-200 dark:hover:border-zinc-700 rounded p-1 focus:ring-2 focus:ring-blue-500 outline-none text-red-600 dark:text-red-400 font-medium"
-                    title="Einddatum"
-                    readOnly={isReadOnly}
-                    disabled={isReadOnly}
+                  <ClientDateRange 
+                    defaultStart={task.date_start || ''} 
+                    defaultEnd={task.date_end || ''} 
+                    isReadOnly={isReadOnly} 
                   />
                 </div>
               </div>
@@ -225,7 +238,7 @@ export default async function TaskDetailsPage({ params }: { params: Promise<{ id
                   <p className="text-sm text-gray-600 dark:text-gray-400">
                     <span className="font-medium text-gray-900 dark:text-white">{item.user}</span>{' '}
                     <span className="italic">{item.action.toLowerCase().includes('aangemaakt') ? 'heeft deze' : 'heeft de'}</span>{' '}
-                    <span className="font-medium text-gray-800 dark:text-gray-200">{item.action}</span>
+                    {formatActionText(item.action)}
                   </p>
                   <span className="text-xs text-gray-400 dark:text-zinc-500 mt-1">{item.time}</span>
                 </div>
@@ -237,7 +250,7 @@ export default async function TaskDetailsPage({ params }: { params: Promise<{ id
         {/* STICKY BOTTOM BAR FOR SAVE */}
         {!isReadOnly && (
           <div className="sticky bottom-0 border-t border-gray-100 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-md px-8 py-4 flex justify-end">
-            <button type="submit" className="text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 transition-colors px-6 py-2.5 rounded-lg shadow-sm">
+            <button type="submit" className="text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 transition-colors px-6 py-2.5 rounded-lg shadow-sm cursor-pointer">
               Wijzigingen Opslaan
             </button>
           </div>

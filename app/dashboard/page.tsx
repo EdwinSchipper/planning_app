@@ -113,7 +113,7 @@ export default async function DashboardHome() {
       <div className="overflow-hidden rounded-xl bg-white dark:bg-zinc-900 shadow-sm border border-gray-100 dark:border-zinc-800">
         <div className="border-b border-gray-100 dark:border-zinc-800 px-6 py-5 flex items-center justify-between bg-gray-50/50 dark:bg-zinc-800/20">
           <h3 className="text-base font-semibold leading-6 text-gray-900 dark:text-white">Mijn Prioriteiten</h3>
-          <Link href="/dashboard/planning" className="text-sm font-medium text-blue-600 hover:text-blue-500 dark:text-blue-400">
+          <Link href="/dashboard/planning" className="text-sm font-medium text-blue-600 hover:text-blue-500 dark:text-blue-400 cursor-pointer">
             Bekijk planning &rarr;
           </Link>
         </div>
@@ -162,11 +162,11 @@ export default async function DashboardHome() {
                 <div className="shrink-0 flex items-center gap-2">
                   <form action={deleteTaskAction}>
                     <input type="hidden" name="task_id" value={task.id} />
-                    <button type="submit" title="Taak verwijderen" className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-md transition-colors">
+                    <button type="submit" title="Taak verwijderen" className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-md transition-colors cursor-pointer">
                       <TrashIcon className="w-5 h-5" />
                     </button>
                   </form>
-                  <Link href={`/dashboard/planning/${task.id}`} title="Details bekijken" className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded-md transition-colors">
+                  <Link href={`/dashboard/planning/${task.id}`} title="Details bekijken" className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded-md transition-colors cursor-pointer">
                     <ChevronRightIcon className="w-5 h-5" />
                   </Link>
                 </div>

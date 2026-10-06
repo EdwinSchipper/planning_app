@@ -1,6 +1,6 @@
 'use client'
 
-import { useActionState } from 'react'
+import { useActionState, useState } from 'react'
 import Link from 'next/link'
 import TextField from '@/app/ui/input'
 import UITextarea from '@/app/ui/textfield'
@@ -10,6 +10,7 @@ import { createTask } from './actions'
 
 export default function NieuweTaakForm({ profiles, currentUserId }: { profiles: any[], currentUserId: string }) {
   const [state, formAction, isPending] = useActionState(createTask, null)
+  const [startDate, setStartDate] = useState('')
 
   const profileOptions = profiles.map(p => ({
     value: p.id,
@@ -104,6 +105,8 @@ export default function NieuweTaakForm({ profiles, currentUserId }: { profiles: 
                 label="Startdatum (Optioneel)"
                 name="date_start"
                 type="date"
+                value={startDate}
+                onChange={(e) => setStartDate(e.target.value)}
               />
             </div>
 
@@ -112,6 +115,7 @@ export default function NieuweTaakForm({ profiles, currentUserId }: { profiles: 
                 label="Einddatum / Deadline (Optioneel)"
                 name="date_end"
                 type="date"
+                min={startDate || undefined}
               />
             </div>
           </div>
