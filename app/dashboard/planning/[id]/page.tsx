@@ -1,6 +1,6 @@
 import { createClient } from '@/utils/supabase/server'
 import Link from 'next/link'
-import { notFound } from 'next/navigation'
+import { notFound, redirect } from 'next/navigation'
 import { UserIcon, CalendarIcon, ArrowLeftIcon } from '@heroicons/react/24/outline'
 import { UIInlineField, UIInlineSelect } from '@/app/ui/inline-field'
 import { updateTask, archiveTask, deleteTask } from './actions'
@@ -37,6 +37,12 @@ export default async function TaskDetailsPage({ params }: { params: Promise<{ id
   const resolvedParams = await params
   const supabase = await createClient()
 
+  // 0. Eerst checken of gebruiker is ingelogd (veiligheid en onnodige queries voorkomen)
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) {
+    redirect('/login')
+  }
+
   // 1. Haal de taak op uit de database
   const { data: task, error } = await supabase
     .from('db_tasks')
@@ -48,9 +54,8 @@ export default async function TaskDetailsPage({ params }: { params: Promise<{ id
     notFound()
   }
 
-  // Haal de huidige gebruiker op om te bepalen of de taak readonly is
-  const { data: { user } } = await supabase.auth.getUser()
-  const isReadOnly = user?.id !== task.userID
+  // Bepaal of de taak readonly is voor deze gebruiker
+  const isReadOnly = user.id !== task.userID
 
   // Haal alle profielen op
   const { data: profiles } = await supabase

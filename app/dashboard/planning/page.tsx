@@ -2,6 +2,8 @@ import { createClient } from '@/utils/supabase/server';
 import Link from 'next/link';
 import { PlusIcon, CalendarIcon, ClipboardDocumentListIcon, TrashIcon, ChevronRightIcon } from '@heroicons/react/24/outline';
 import { revalidatePath } from 'next/cache';
+import { redirect } from 'next/navigation';
+import { StatusBadge } from '@/app/ui/status-badge';
 
 // We definiëren hier de structuur van een taak zoals hij in je database staat
 interface Task {
@@ -14,22 +16,6 @@ interface Task {
   date_end?: string | null;
   estimated_hours?: number;
   userID: string;
-}
-
-function getStatusBadgeClasses(status: string) {
-  const base = "px-2 py-0.5 rounded-md border text-xs font-medium";
-  switch (status) {
-    case 'Open':
-      return `${base} text-blue-700 bg-blue-50 border-blue-200 dark:bg-blue-900/30 dark:text-blue-400 dark:border-blue-800`;
-    case 'In Behandeling':
-      return `${base} text-amber-700 bg-amber-50 border-amber-200 dark:bg-amber-900/30 dark:text-amber-400 dark:border-amber-800`;
-    case 'Wacht op feedback':
-      return `${base} text-purple-700 bg-purple-50 border-purple-200 dark:bg-purple-900/30 dark:text-purple-400 dark:border-purple-800`;
-    case 'Voltooid':
-      return `${base} text-green-700 bg-green-50 border-green-200 dark:bg-green-900/30 dark:text-green-400 dark:border-green-800`;
-    default:
-      return `${base} text-gray-700 bg-gray-100 border-gray-200 dark:bg-zinc-800 dark:text-gray-300 dark:border-zinc-700`;
-  }
 }
 
 function isThisWeek(dateString?: string | null) {
@@ -54,6 +40,13 @@ export default async function PlanningPage({
 }: {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>
 }) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (!user) {
+    redirect('/login');
+  }
+
   // Server action to delete a task
   async function deleteTaskAction(formData: FormData) {
     'use server'
@@ -70,17 +63,13 @@ export default async function PlanningPage({
     }
   }
 
-  // Lees de huidige URL uit (bijv ?filter=mine)
   const resolvedSearchParams = await searchParams;
   const filter = resolvedSearchParams.filter || 'all';
-
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
 
   // Bouw de database query op (we halen meer openstaande taken op voor de groepering)
   let query = supabase
     .from('db_tasks')
-    .select('*', { count: 'exact' })
+    .select('id, task_title, status, type, date_start, date_end, estimated_hours, userID', { count: 'exact' })
     .neq('is_archived', true)
     .order('date_end', { ascending: true, nullsFirst: true })
     .order('created_at', { ascending: false })
@@ -111,9 +100,7 @@ export default async function PlanningPage({
           
           <div className="mt-2 flex items-center gap-3 flex-wrap text-xs text-gray-500 dark:text-zinc-400">
             {task.status && (
-              <span className={getStatusBadgeClasses(task.status)}>
-                {task.status}
-              </span>
+              <StatusBadge status={task.status} />
             )}
             {task.type && (
               <span className="font-medium text-gray-600 dark:text-gray-400 bg-gray-50 dark:bg-zinc-800/50 px-2 py-0.5 rounded-md border border-gray-100 dark:border-zinc-800">
