@@ -1,6 +1,6 @@
 import { createClient } from '@/utils/supabase/server';
 import Link from 'next/link';
-import { PlusIcon, CalendarIcon, ClipboardDocumentListIcon, TrashIcon, ChevronRightIcon } from '@heroicons/react/24/outline';
+import { PlusIcon, CalendarIcon, ClipboardDocumentListIcon, TrashIcon, ChevronRightIcon, CheckIcon } from '@heroicons/react/24/outline';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { StatusBadge } from '@/app/ui/status-badge';
@@ -9,7 +9,7 @@ import { StatusBadge } from '@/app/ui/status-badge';
 interface Task {
   id: number;
   task_title: string;
-  task_content: string;
+  task_content?: string;
   status: string;
   type: string;
   date_start?: string | null;
@@ -63,6 +63,29 @@ export default async function PlanningPage({
     }
   }
 
+  // Server action to complete a task
+  async function completeTaskAction(formData: FormData) {
+    'use server'
+    const supabase = await createClient();
+    const task_id = formData.get('task_id') as string;
+    
+    if (!task_id) return;
+    
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+
+    const { error } = await supabase.from('db_tasks').update({ status: 'Voltooid' }).eq('id', parseInt(task_id));
+    if (!error) {
+      await supabase.from('task_history').insert({
+        task_id: parseInt(task_id),
+        user_id: user.id,
+        action: "Status naar 'Voltooid'"
+      });
+      revalidatePath('/dashboard/planning');
+      revalidatePath('/dashboard');
+    }
+  }
+
   const resolvedSearchParams = await searchParams;
   const filter = resolvedSearchParams.filter || 'all';
 
@@ -90,13 +113,34 @@ export default async function PlanningPage({
   const tasksThisWeek = tasks?.filter(t => t.date_end ? isThisWeek(t.date_end) : (t.date_start ? isThisWeek(t.date_start) : false)) || [];
   const tasksFuture = tasks?.filter(t => t.date_end ? !isThisWeek(t.date_end) : (t.date_start ? !isThisWeek(t.date_start) : true)) || [];
 
-  const renderTask = (task: Task) => (
-    <li key={task.id} className="p-4 sm:p-5 hover:bg-gray-50 dark:hover:bg-zinc-800/50 transition-colors group">
+  const renderTask = (task: Task) => {
+    const isCompleted = task.status === 'Voltooid';
+    
+    return (
+    <li key={task.id} className={`p-4 sm:p-5 hover:bg-gray-50 dark:hover:bg-zinc-800/50 transition-colors group ${isCompleted ? 'opacity-60 bg-gray-50/50 dark:bg-zinc-900/50' : ''}`}>
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div className="flex-1 min-w-0">
-          <Link href={`/dashboard/planning/${task.id}`} className="text-base font-semibold text-gray-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400 transition-colors truncate block cursor-pointer">
-            {task.task_title || "Naamloze Taak"}
-          </Link>
+        <div className="flex items-start gap-4 flex-1 min-w-0">
+          
+          <form action={completeTaskAction} className="shrink-0 mt-0.5">
+            <input type="hidden" name="task_id" value={task.id} />
+            <button 
+              type="submit" 
+              disabled={isCompleted}
+              title={isCompleted ? "Taak is al voltooid" : "Markeer als voltooid"}
+              className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all ${
+                isCompleted 
+                  ? 'bg-green-500 border-green-500 text-white cursor-default' 
+                  : 'border-gray-300 dark:border-zinc-600 hover:border-green-500 hover:bg-green-50 dark:hover:bg-green-900/30 text-transparent hover:text-green-500 cursor-pointer'
+              }`}
+            >
+              <CheckIcon className="w-4 h-4 stroke-[3]" />
+            </button>
+          </form>
+
+          <div className="flex-1 min-w-0">
+            <Link href={`/dashboard/planning/${task.id}`} className={`text-base font-semibold transition-colors truncate block cursor-pointer ${isCompleted ? 'text-gray-500 dark:text-zinc-500 line-through' : 'text-gray-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400'}`}>
+              {task.task_title || "Naamloze Taak"}
+            </Link>
           
           <div className="mt-2 flex items-center gap-3 flex-wrap text-xs text-gray-500 dark:text-zinc-400">
             {task.status && (
@@ -131,6 +175,7 @@ export default async function PlanningPage({
             ) : null}
           </div>
         </div>
+        </div>
 
         <div className="shrink-0 flex items-center gap-2">
           <form action={deleteTaskAction}>
@@ -145,7 +190,8 @@ export default async function PlanningPage({
         </div>
       </div>
     </li>
-  );
+    );
+  };
 
   return (
     <div className="space-y-8 max-w-5xl">

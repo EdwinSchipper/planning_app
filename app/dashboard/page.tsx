@@ -1,6 +1,6 @@
 import { createClient } from '@/utils/supabase/server';
 import Link from 'next/link';
-import { CalendarIcon, TrashIcon, ChevronRightIcon, ClipboardDocumentListIcon, ClockIcon, CheckBadgeIcon } from '@heroicons/react/24/outline';
+import { CalendarIcon, TrashIcon, ChevronRightIcon, ClipboardDocumentListIcon, ClockIcon, CheckBadgeIcon, CheckIcon } from '@heroicons/react/24/outline';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { StatCard } from '@/app/ui/dashboard/stat-card';
@@ -22,6 +22,29 @@ export default async function DashboardHome() {
     } else {
       revalidatePath('/dashboard');
       revalidatePath('/dashboard/planning');
+    }
+  }
+
+  // Server action to complete a task
+  async function completeTaskAction(formData: FormData) {
+    'use server'
+    const supabase = await createClient();
+    const task_id = formData.get('task_id') as string;
+    
+    if (!task_id) return;
+    
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+
+    const { error } = await supabase.from('db_tasks').update({ status: 'Voltooid' }).eq('id', parseInt(task_id));
+    if (!error) {
+      await supabase.from('task_history').insert({
+        task_id: parseInt(task_id),
+        user_id: user.id,
+        action: "Status naar 'Voltooid'"
+      });
+      revalidatePath('/dashboard/planning');
+      revalidatePath('/dashboard');
     }
   }
 
@@ -133,12 +156,32 @@ export default async function DashboardHome() {
         </div>
         <div className="divide-y divide-gray-100 dark:divide-zinc-800">
           {topTasks.length > 0 ? (
-            topTasks.map(task => (
-              <div key={task.id} className="p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:bg-gray-50 dark:hover:bg-zinc-800/50 transition-colors group">
-                <div className="flex-1 min-w-0">
-                  <Link href={`/dashboard/planning/${task.id}`} className="text-base font-semibold text-gray-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400 transition-colors truncate block">
-                    {task.task_title || "Naamloze Taak"}
-                  </Link>
+            topTasks.map(task => {
+              const isCompleted = task.status === 'Voltooid';
+              return (
+              <div key={task.id} className={`p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:bg-gray-50 dark:hover:bg-zinc-800/50 transition-colors group ${isCompleted ? 'opacity-60 bg-gray-50/50 dark:bg-zinc-900/50' : ''}`}>
+                <div className="flex items-start gap-4 flex-1 min-w-0">
+                  
+                  <form action={completeTaskAction} className="shrink-0 mt-0.5">
+                    <input type="hidden" name="task_id" value={task.id} />
+                    <button 
+                      type="submit" 
+                      disabled={isCompleted}
+                      title={isCompleted ? "Taak is al voltooid" : "Markeer als voltooid"}
+                      className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all ${
+                        isCompleted 
+                          ? 'bg-green-500 border-green-500 text-white cursor-default' 
+                          : 'border-gray-300 dark:border-zinc-600 hover:border-green-500 hover:bg-green-50 dark:hover:bg-green-900/30 text-transparent hover:text-green-500 cursor-pointer'
+                      }`}
+                    >
+                      <CheckIcon className="w-4 h-4 stroke-[3]" />
+                    </button>
+                  </form>
+
+                  <div className="flex-1 min-w-0">
+                    <Link href={`/dashboard/planning/${task.id}`} className={`text-base font-semibold transition-colors truncate block cursor-pointer ${isCompleted ? 'text-gray-500 dark:text-zinc-500 line-through' : 'text-gray-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400'}`}>
+                      {task.task_title || "Naamloze Taak"}
+                    </Link>
 
                   <div className="mt-2 flex items-center gap-3 flex-wrap text-xs text-gray-500 dark:text-zinc-400">
                     <StatusBadge status={task.status || 'Open'} />
@@ -172,6 +215,7 @@ export default async function DashboardHome() {
                     )}
                   </div>
                 </div>
+                </div>
 
                 <div className="shrink-0 flex items-center gap-2">
                   <form action={deleteTaskAction}>
@@ -185,7 +229,8 @@ export default async function DashboardHome() {
                   </Link>
                 </div>
               </div>
-            ))
+            );
+            })
           ) : (
             <div className="px-6 py-10 text-center">
               <p className="text-sm text-gray-500 dark:text-zinc-400">Je hebt momenteel geen openstaande taken op je naam staan.</p>

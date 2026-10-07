@@ -144,3 +144,55 @@ export async function deleteTask(formData: FormData) {
     redirect('/dashboard/planning')
   }
 }
+
+export async function completeTask(formData: FormData) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return
+
+  const task_id = formData.get('task_id') as string
+  if (!task_id) return
+
+  const { error } = await supabase
+    .from('db_tasks')
+    .update({ status: 'Voltooid' })
+    .eq('id', parseInt(task_id))
+
+  if (!error) {
+    await supabase.from('task_history').insert({
+      task_id: parseInt(task_id),
+      user_id: user.id,
+      action: "Status naar 'Voltooid'"
+    })
+    revalidatePath(`/dashboard/planning/${task_id}`)
+    revalidatePath('/dashboard/planning')
+    revalidatePath('/dashboard')
+  }
+}
+
+export async function reopenTask(formData: FormData) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return
+
+  const task_id = formData.get('task_id') as string
+  if (!task_id) return
+
+  const { error } = await supabase
+    .from('db_tasks')
+    .update({ status: 'Open' })
+    .eq('id', parseInt(task_id))
+
+  if (!error) {
+    await supabase.from('task_history').insert({
+      task_id: parseInt(task_id),
+      user_id: user.id,
+      action: "Status naar 'Open'"
+    })
+    revalidatePath(`/dashboard/planning/${task_id}`)
+    revalidatePath('/dashboard/planning')
+    revalidatePath('/dashboard')
+  }
+}
+
+

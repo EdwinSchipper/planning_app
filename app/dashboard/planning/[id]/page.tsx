@@ -1,9 +1,9 @@
 import { createClient } from '@/utils/supabase/server'
 import Link from 'next/link'
 import { notFound, redirect } from 'next/navigation'
-import { UserIcon, CalendarIcon, ArrowLeftIcon } from '@heroicons/react/24/outline'
+import { UserIcon, CalendarIcon, ArrowLeftIcon, CheckIcon, TrashIcon, ArchiveBoxIcon } from '@heroicons/react/24/outline'
 import { UIInlineField, UIInlineSelect } from '@/app/ui/inline-field'
-import { updateTask, archiveTask, deleteTask } from './actions'
+import { updateTask, archiveTask, deleteTask, completeTask, reopenTask } from './actions'
 import ClientTaskForm from './client-form'
 import ClientDateRange from './client-date-range'
 
@@ -132,20 +132,40 @@ export default async function TaskDetailsPage({ params }: { params: Promise<{ id
             />
 
             {!isReadOnly && (
-              <div className="flex items-center gap-3 shrink-0">
+              <div className="flex items-center gap-2 shrink-0">
+                {task.status === 'Voltooid' ? (
+                  <button
+                    formAction={reopenTask}
+                    className="inline-flex items-center gap-2 justify-center rounded-lg px-4 py-2 text-sm font-semibold text-green-700 bg-green-50 hover:bg-green-100 border border-green-200 transition-colors shadow-sm cursor-pointer"
+                    title="Taak is voltooid. Klik om te heropenen als dit een foutje was."
+                  >
+                    <CheckIcon className="w-4 h-4 stroke-[3]" />
+                    Voltooid
+                  </button>
+                ) : (
+                  <button
+                    formAction={completeTask}
+                    className="inline-flex items-center gap-2 justify-center rounded-lg px-4 py-2 text-sm font-semibold text-white bg-green-500 hover:bg-green-600 transition-colors shadow-sm cursor-pointer"
+                    title="Markeer deze taak direct als voltooid"
+                  >
+                    <CheckIcon className="w-4 h-4 stroke-[3]" />
+                    Voltooien
+                  </button>
+                )}
+                <div className="w-px h-6 bg-gray-200 dark:bg-zinc-800 mx-1"></div>
                 <button
                   formAction={archiveTask}
-                  className="inline-flex items-center justify-center rounded-lg px-3 py-1.5 text-sm font-medium text-gray-600 dark:text-zinc-400 hover:bg-gray-100 dark:hover:bg-zinc-800 transition-colors cursor-pointer"
-                  title="Verberg deze taak uit het overzicht"
+                  className="inline-flex items-center justify-center rounded-lg p-2 text-gray-400 hover:text-gray-600 dark:hover:text-zinc-300 hover:bg-gray-100 dark:hover:bg-zinc-800 transition-colors cursor-pointer"
+                  title="Archiveren (verberg uit overzicht)"
                 >
-                  Archiveren
+                  <ArchiveBoxIcon className="w-5 h-5" />
                 </button>
                 <button
                   formAction={deleteTask}
-                  className="inline-flex items-center justify-center rounded-lg px-3 py-1.5 text-sm font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors cursor-pointer"
-                  title="Definitief verwijderen uit database"
+                  className="inline-flex items-center justify-center rounded-lg p-2 text-gray-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors cursor-pointer"
+                  title="Definitief verwijderen"
                 >
-                  Verwijderen
+                  <TrashIcon className="w-5 h-5" />
                 </button>
               </div>
             )}
@@ -227,16 +247,26 @@ export default async function TaskDetailsPage({ params }: { params: Promise<{ id
         <div className="p-8 sm:p-10 border-t border-gray-100 dark:border-zinc-800 bg-white dark:bg-zinc-900">
           <h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-6">Activiteit</h3>
           <div className="space-y-6">
-            {history.map((item, index) => (
+            {history.map((item, index) => {
+              const isVoltooid = item.action.includes("Status naar 'Voltooid'");
+              return (
               <div key={item.id} className="relative flex gap-4">
                 {/* Lijn die de bolletjes verbindt (behalve bij de laatste) */}
                 {index !== history.length - 1 && (
                   <span className="absolute left-[15px] top-8 bottom-[-24px] w-[2px] bg-gray-100 dark:bg-zinc-800" />
                 )}
                 
-                {/* Bolletje met initiaal */}
-                <div className="relative shrink-0 w-8 h-8 rounded-full bg-blue-50 dark:bg-blue-900/30 flex items-center justify-center ring-4 ring-white dark:ring-zinc-900 z-10">
-                  <span className="text-xs font-bold text-blue-600 dark:text-blue-400">{item.initial}</span>
+                {/* Bolletje met initiaal of vinkje */}
+                <div className={`relative shrink-0 w-8 h-8 rounded-full flex items-center justify-center ring-4 ring-white dark:ring-zinc-900 z-10 ${
+                  isVoltooid 
+                    ? 'bg-green-500 text-white' 
+                    : 'bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400'
+                }`}>
+                  {isVoltooid ? (
+                    <CheckIcon className="w-4 h-4 stroke-[3]" />
+                  ) : (
+                    <span className="text-xs font-bold">{item.initial}</span>
+                  )}
                 </div>
                 
                 <div className="flex flex-col pt-1.5 pb-2">
@@ -248,7 +278,7 @@ export default async function TaskDetailsPage({ params }: { params: Promise<{ id
                   <span className="text-xs text-gray-400 dark:text-zinc-500 mt-1">{item.time}</span>
                 </div>
               </div>
-            ))}
+            )})}
           </div>
         </div>
 
