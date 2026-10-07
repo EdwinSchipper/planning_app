@@ -86,6 +86,29 @@ export default async function PlanningPage({
     }
   }
 
+  // Server action to reopen a task
+  async function reopenTaskAction(formData: FormData) {
+    'use server'
+    const supabase = await createClient();
+    const task_id = formData.get('task_id') as string;
+    
+    if (!task_id) return;
+    
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+
+    const { error } = await supabase.from('db_tasks').update({ status: 'Open' }).eq('id', parseInt(task_id));
+    if (!error) {
+      await supabase.from('task_history').insert({
+        task_id: parseInt(task_id),
+        user_id: user.id,
+        action: "Status naar 'Open'"
+      });
+      revalidatePath('/dashboard/planning');
+      revalidatePath('/dashboard');
+    }
+  }
+
   const resolvedSearchParams = await searchParams;
   const filter = resolvedSearchParams.filter || 'all';
 
@@ -96,6 +119,7 @@ export default async function PlanningPage({
     .neq('is_archived', true)
     .order('date_end', { ascending: true, nullsFirst: true })
     .order('created_at', { ascending: false })
+    .order('id', { ascending: false })
     .limit(50);
 
   // Filter alleen jouw eigen taken als de toggle op 'Mijn Taken' staat
@@ -121,19 +145,18 @@ export default async function PlanningPage({
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="flex items-start gap-4 flex-1 min-w-0">
           
-          <form action={completeTaskAction} className="shrink-0 mt-0.5">
+          <form action={isCompleted ? reopenTaskAction : completeTaskAction} className="shrink-0 mt-0.5">
             <input type="hidden" name="task_id" value={task.id} />
             <button 
               type="submit" 
-              disabled={isCompleted}
-              title={isCompleted ? "Taak is al voltooid" : "Markeer als voltooid"}
-              className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all ${
+              title={isCompleted ? "Taak is voltooid. Klik om te heropenen." : "Markeer als voltooid"}
+              className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all cursor-pointer ${
                 isCompleted 
-                  ? 'bg-green-500 border-green-500 text-white cursor-default' 
-                  : 'border-gray-300 dark:border-zinc-600 hover:border-green-500 hover:bg-green-50 dark:hover:bg-green-900/30 text-transparent hover:text-green-500 cursor-pointer'
+                  ? 'bg-green-50 text-green-600 border-green-300 hover:bg-green-100 hover:border-green-400' 
+                  : 'border-gray-300 dark:border-zinc-600 hover:border-green-500 hover:bg-green-50 dark:hover:bg-green-900/30 text-transparent hover:text-green-500'
               }`}
             >
-              <CheckIcon className="w-4 h-4 stroke-[3]" />
+              <CheckIcon className={`w-4 h-4 stroke-[3] ${isCompleted ? 'text-green-600' : ''}`} />
             </button>
           </form>
 

@@ -37,7 +37,7 @@ export default function LoginForm() {
       <div className="flex items-center justify-between">
         <UICheckbox name="remember-me" label="Onthoud mij" />
         <div className="text-sm">
-          <a href="#" className="font-medium text-blue-600 hover:text-blue-500 dark:text-blue-400">
+          <a href="#" className="font-medium text-blue-600 hover:text-blue-500 dark:text-blue-400 cursor-not-allowed" title="Niet mogelijk in deze demo">
             Wachtwoord vergeten?
           </a>
         </div>

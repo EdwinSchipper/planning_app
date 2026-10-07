@@ -1,5 +1,4 @@
 import LoginForm from '@/app/ui/login-form';
-import DropdownMenu from '@/app/ui/dropdown-menu';
 
 export default function LoginPage() {
   return (
