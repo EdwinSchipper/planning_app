@@ -11,12 +11,12 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   return (
     <div className="flex h-screen bg-gray-50 dark:bg-zinc-950 font-sans overflow-hidden">
-      {/* Sidebar voor desktop */}
+      {/* Sidebar for desktop */}
       <aside className="w-64 border-r border-gray-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 hidden md:flex flex-col">
         <div className="h-16 flex items-center px-6 border-b border-gray-200 dark:border-zinc-800">
           <span className="text-xl font-bold text-gray-900 dark:text-white tracking-tight">Planning App</span>
         </div>
-        
+
         <nav className="flex-1 px-4 py-6 space-y-1.5">
           {navigation.map((item) => (
             <Link
@@ -43,9 +43,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         </div>
       </aside>
 
-      {/* Hoofd content gedeelte */}
+      {/* Main content area */}
       <main className="flex-1 flex flex-col min-w-0 overflow-hidden">
-        {/* Simpele mobiele header */}
+        {/* Simple mobile header */}
         <header className="md:hidden h-16 border-b border-gray-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 flex items-center justify-between px-4">
           <span className="text-lg font-bold text-gray-900 dark:text-white tracking-tight">Planning App</span>
           <form action={logout}>
@@ -55,7 +55,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           </form>
         </header>
 
-        {/* Hier wordt de actieve pagina ingeladen */}
+        {/* Active page content is loaded here */}
         <div className="flex-1 overflow-auto p-4 md:p-8">
           <div className="max-w-5xl mx-auto">
             {children}

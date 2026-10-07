@@ -36,13 +36,13 @@ Wil je de code lokaal op je eigen machine draaien of forken? Volg deze stappen:
 
 ### 1. Clone de repository
 ```bash
-git clone https://github.com/EdwinSchipper/planning-app.git
-cd planning-app
+git clone https://github.com/EdwinSchipper/planning_app.git
+cd planning_app
 ```
 
 ### 2. Installeer dependencies
 ```bash
-npm install
+pnpm install
 ```
 
 ### 3. Supabase Database Instellen
@@ -60,7 +60,7 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=jouw_supabase_anon_key_hier
 
 ### 5. Start de applicatie
 ```bash
-npm run dev
+pnpm run dev
 ```
 Open je browser en navigeer naar [http://localhost:3000](http://localhost:3000).
 

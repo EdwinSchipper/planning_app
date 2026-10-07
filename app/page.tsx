@@ -8,7 +8,7 @@ export default async function Home() {
 
   return (
     <div className="min-h-screen bg-white dark:bg-zinc-950 flex flex-col font-sans selection:bg-blue-100 selection:text-blue-900 dark:selection:bg-blue-900 dark:selection:text-blue-100">
-      
+
       {/* Navbar / Header */}
       <header className="absolute inset-x-0 top-0 z-50">
         <nav className="flex items-center justify-between p-6 lg:px-8" aria-label="Global">
@@ -73,6 +73,28 @@ export default async function Home() {
               Meer ontdekken <span aria-hidden="true">↓</span>
             </a>
           </div>
+
+          {!user && (
+            <div className="mt-12 mx-auto max-w-sm p-4 rounded-2xl bg-white/60 dark:bg-zinc-900/60 backdrop-blur-md border border-gray-200 dark:border-zinc-800 shadow-sm ring-1 ring-black/5 dark:ring-white/5">
+              <h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-3 flex items-center justify-center gap-2">
+                <svg className="w-4 h-4 text-blue-500" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
+                </svg>
+                Probeer de Demo
+              </h3>
+              <div className="flex flex-col gap-2 text-sm text-gray-600 dark:text-zinc-400">
+                <div className="flex justify-between items-center bg-gray-50 dark:bg-zinc-800/80 px-3 py-2 rounded-lg border border-gray-100 dark:border-zinc-700">
+                  <span className="font-medium">E-mail:</span>
+                  <code className="font-mono text-blue-600 dark:text-blue-400 font-semibold text-xs tracking-wide">demo@fakeaccount.nl</code>
+                </div>
+                <div className="flex justify-between items-center bg-gray-50 dark:bg-zinc-800/80 px-3 py-2 rounded-lg border border-gray-100 dark:border-zinc-700">
+                  <span className="font-medium">Wachtwoord:</span>
+                  <code className="font-mono text-blue-600 dark:text-blue-400 font-semibold text-xs tracking-wide">QAZ123</code>
+                </div>
+              </div>
+            </div>
+          )}
+
         </div>
       </main>
 
@@ -132,9 +154,9 @@ export default async function Home() {
             &copy; {new Date().getFullYear()} Ontwikkeld door <a href="https://edwinschipper.nl/" target="_blank" rel="noopener noreferrer" className="font-semibold text-gray-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400 transition-colors">Edwin Schipper</a>.
           </p>
           <div className="flex gap-4">
-            <a 
-              href="https://github.com/EdwinSchipper/planning-app" 
-              target="_blank" 
+            <a
+              href="https://github.com/EdwinSchipper/planning_app"
+              target="_blank"
               rel="noopener noreferrer"
               className="text-sm font-medium text-gray-500 hover:text-gray-900 dark:text-zinc-400 dark:hover:text-white flex items-center gap-2 transition-colors group"
             >

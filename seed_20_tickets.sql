@@ -36,7 +36,16 @@ BEGIN
     ) 
     VALUES (
       v_titles[i], 
-      'Hier komt een uitgebreide omschrijving van de taak. Er moet nog even goed naar gekeken worden door het team. Let op de kleine details bij de uitwerking.',
+      'Dit is een uitgebreide omschrijving van de taak met alle benodigde achtergrondinformatie.
+
+Belangrijke punten voor de uitvoering:
+- Zorg ervoor dat alle bestaande functionaliteiten gewaarborgd blijven.
+- Bespreek vooraf eventuele obstakels met de projectmanager.
+- Test de oplevering zorgvuldig op zowel mobiel als desktop weergaven.
+
+Daarnaast is het cruciaal dat de documentatie wordt nageleefd. Kleine details maken een groot verschil in de eindoplevering. Let goed op de afspraken zoals besproken in de recente teamvergadering.
+
+Mochten er vragen zijn tijdens de uitvoering, wijzig de status dan even naar "Wacht op feedback". Succes met de uitwerking!',
       v_status,
       v_types[1 + floor(random() * 4)],
       CURRENT_DATE + (floor(random() * 10) || ' days')::interval,
