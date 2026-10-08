@@ -192,8 +192,8 @@ export default async function TaskDetailsPage({ params }: { params: Promise<{ id
 
         {/* STICKY BOTTOM BAR FOR SAVE */}
         {!isReadOnly && (
-          <div className="sticky bottom-0 border-t border-gray-100 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-md px-8 py-4 flex justify-end">
-            <button type="submit" className="text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 transition-colors px-6 py-2.5 rounded-lg shadow-sm cursor-pointer">
+          <div className="sticky bottom-0 border-t border-gray-100 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-md px-4 sm:px-8 py-4 flex justify-end">
+            <button type="submit" className="w-full sm:w-auto text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 transition-colors px-6 py-3 sm:py-2.5 rounded-lg shadow-sm cursor-pointer">
               Wijzigingen Opslaan
             </button>
           </div>

@@ -63,7 +63,10 @@ export default function DashboardClient({
       <div>
         <h1 className="text-3xl font-bold tracking-tight text-gray-900 dark:text-white">Dashboard</h1>
         <p className="mt-2 text-[15px] text-gray-500 dark:text-zinc-400">
-          Welkom terug, <span className="font-medium text-gray-900 dark:text-white">{fullName || email}</span>! Je bent ingelogd als <span className="inline-flex items-center rounded-md bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-700/10 dark:bg-blue-900/30 dark:text-blue-400 dark:ring-blue-400/20">{role}</span>.
+          Welkom terug, <span className="font-medium text-gray-900 dark:text-white">{fullName || email}</span>!{' '}
+          <span className="block mt-1 sm:mt-0 sm:inline">
+            Je bent ingelogd als <span className="inline-flex items-center rounded-md bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-700/10 dark:bg-blue-900/30 dark:text-blue-400 dark:ring-blue-400/20">{role}</span>.
+          </span>
         </p>
       </div>
 
@@ -102,10 +105,10 @@ export default function DashboardClient({
             topTasks.map(task => {
               const isCompleted = task.status === 'Voltooid';
               return (
-                <div key={task.id} className={`p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:bg-gray-50 dark:hover:bg-zinc-800/50 transition-colors group ${isCompleted ? 'opacity-60 bg-gray-50/50 dark:bg-zinc-900/50' : ''}`}>
-                  <div className="flex items-start gap-4 flex-1 min-w-0">
+                <div key={task.id} className={`p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 hover:bg-gray-50 dark:hover:bg-zinc-800/50 transition-colors group ${isCompleted ? 'opacity-60 bg-gray-50/50 dark:bg-zinc-900/50' : ''}`}>
+                  <div className="flex items-start gap-3 sm:gap-4 flex-1 min-w-0">
 
-                    <form action={() => isCompleted ? handleReopen(task.id) : handleComplete(task.id)} className="shrink-0 mt-0.5">
+                    <form action={() => isCompleted ? handleReopen(task.id) : handleComplete(task.id)} className="shrink-0 mt-0.5 sm:mt-1">
                       <button
                         type="submit"
                         title={isCompleted ? "Taak is voltooid. Klik om te heropenen." : "Markeer als voltooid"}
@@ -123,7 +126,7 @@ export default function DashboardClient({
                         {task.task_title || "Naamloze Taak"}
                       </Link>
 
-                      <div className="mt-2 flex items-center gap-3 flex-wrap text-xs text-gray-500 dark:text-zinc-400">
+                      <div className="mt-2.5 flex items-center gap-2 sm:gap-3 flex-wrap text-xs text-gray-500 dark:text-zinc-400">
                         <StatusBadge status={task.status || 'Open'} />
 
                         {task.type && (
@@ -155,13 +158,14 @@ export default function DashboardClient({
                     </div>
                   </div>
 
-                  <div className="shrink-0 flex items-center gap-2">
+                  <div className="shrink-0 flex items-center justify-end gap-1 sm:gap-2 self-end sm:self-auto mt-2 sm:mt-0 w-full sm:w-auto pt-3 sm:pt-0 border-t border-gray-100 dark:border-zinc-800 sm:border-0">
                     <form action={() => handleDelete(task.id)}>
                       <button type="submit" title="Taak verwijderen" className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-md transition-colors cursor-pointer">
                         <TrashIcon className="w-5 h-5" />
                       </button>
                     </form>
-                    <Link href={`/dashboard/planning/${task.id}`} title="Details bekijken" className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded-md transition-colors cursor-pointer">
+                    <Link href={`/dashboard/planning/${task.id}`} title="Details bekijken" className="px-3 py-1.5 sm:p-2 text-sm sm:text-base font-medium text-gray-600 dark:text-gray-300 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded-md transition-colors cursor-pointer flex items-center gap-1.5">
+                      <span className="sm:hidden">Details</span>
                       <ChevronRightIcon className="w-5 h-5" />
                     </Link>
                   </div>

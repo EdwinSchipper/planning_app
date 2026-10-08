@@ -120,16 +120,18 @@ export default function NieuweTaakForm({ profiles, currentUserId }: { profiles: 
             </div>
           </div>
 
-          <div className="pt-6 border-t border-gray-100 dark:border-zinc-800 flex justify-end gap-3">
+          <div className="pt-6 border-t border-gray-100 dark:border-zinc-800 flex flex-col-reverse sm:flex-row justify-end gap-3">
             <Link
               href="/dashboard/planning"
-              className="px-4 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors"
+              className="w-full sm:w-auto px-4 py-2.5 text-center text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-zinc-800/50 rounded-lg transition-colors"
             >
               Annuleren
             </Link>
-            <UIButton type="submit" disabled={isPending}>
-              {isPending ? 'Bezig met opslaan...' : 'Taak Aanmaken'}
-            </UIButton>
+            <div className="w-full sm:w-auto flex flex-col">
+              <UIButton type="submit" disabled={isPending}>
+                {isPending ? 'Bezig met opslaan...' : 'Taak Aanmaken'}
+              </UIButton>
+            </div>
           </div>
         </form>
       </div>
