@@ -59,62 +59,63 @@ export default async function TaskDetailsPage({ params }: { params: Promise<{ id
 
         {/* HEADER & METADATA GRID */}
         <div className="p-8 sm:p-10 border-b border-gray-100 dark:border-zinc-800">
-          <div className="flex flex-col lg:flex-row lg:items-start justify-between gap-6 mb-8">
-            <input
-              type="text"
+          <div className="flex flex-col lg:flex-row lg:items-start justify-between gap-4 sm:gap-6 mb-6 sm:mb-8">
+            <textarea
               name="task_title"
               defaultValue={task.task_title || ""}
-              className="text-3xl sm:text-4xl font-bold tracking-tight text-gray-900 dark:text-white bg-transparent border-none p-0 focus:ring-0 focus:outline-none flex-1 w-full placeholder-gray-300 dark:placeholder-zinc-700"
+              rows={Math.max(1, Math.ceil((task.task_title?.length || 0) / 30))}
+              className="text-2xl sm:text-3xl font-bold tracking-tight text-gray-900 dark:text-white bg-transparent border-none py-1 focus:ring-0 focus:outline-none flex-1 w-full placeholder-gray-300 dark:placeholder-zinc-700 resize-none overflow-hidden leading-tight"
               placeholder="Naamloze Taak"
               readOnly={isReadOnly}
+              spellCheck="false"
             />
 
             {!isReadOnly && (
-              <div className="flex items-center gap-2 shrink-0">
+              <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
                 {task.status === 'Voltooid' ? (
                   <button
                     formAction={reopenTask}
-                    className="inline-flex items-center gap-2 justify-center rounded-lg px-4 py-2 text-sm font-semibold text-green-700 bg-green-50 hover:bg-green-100 border border-green-200 transition-colors shadow-sm cursor-pointer"
+                    className="inline-flex items-center gap-1.5 sm:gap-2 justify-center rounded-full sm:rounded-md p-2 sm:px-4 sm:py-2 text-xs sm:text-sm font-medium text-green-700 bg-green-50 hover:bg-green-100 border border-green-200 transition-colors shadow-sm cursor-pointer"
                     title="Taak is voltooid. Klik om te heropenen als dit een foutje was."
                   >
                     <CheckIcon className="w-4 h-4 stroke-[3]" />
-                    Voltooid
+                    <span className="hidden sm:inline">Voltooid</span>
                   </button>
                 ) : (
                   <button
                     formAction={completeTask}
-                    className="inline-flex items-center gap-2 justify-center rounded-lg px-4 py-2 text-sm font-semibold text-white bg-green-500 hover:bg-green-600 transition-colors shadow-sm cursor-pointer"
+                    className="inline-flex items-center gap-1.5 sm:gap-2 justify-center rounded-full sm:rounded-md p-2 sm:px-4 sm:py-2 text-xs sm:text-sm font-medium text-white bg-green-500 hover:bg-green-600 transition-colors shadow-sm cursor-pointer"
                     title="Markeer deze taak direct als voltooid"
                   >
                     <CheckIcon className="w-4 h-4 stroke-[3]" />
-                    Voltooien
+                    <span className="hidden sm:inline">Voltooien</span>
                   </button>
                 )}
                 <div className="w-px h-6 bg-gray-200 dark:bg-zinc-800 mx-1"></div>
                 <button
                   formAction={archiveTask}
-                  className="inline-flex items-center justify-center rounded-lg p-2 text-gray-400 hover:text-gray-600 dark:hover:text-zinc-300 hover:bg-gray-100 dark:hover:bg-zinc-800 transition-colors cursor-pointer"
+                  className="inline-flex items-center justify-center rounded-md p-2 text-gray-400 hover:text-gray-600 dark:hover:text-zinc-300 hover:bg-gray-100 dark:hover:bg-zinc-800 transition-colors cursor-pointer"
                   title="Archiveren (verberg uit overzicht)"
                 >
-                  <ArchiveBoxIcon className="w-5 h-5" />
+                  <ArchiveBoxIcon className="w-4 h-4 sm:w-5 sm:h-5" />
                 </button>
                 <button
                   formAction={deleteTask}
-                  className="inline-flex items-center justify-center rounded-lg p-2 text-gray-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors cursor-pointer"
+                  className="inline-flex items-center justify-center rounded-md p-2 text-gray-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors cursor-pointer"
                   title="Definitief verwijderen"
                 >
-                  <TrashIcon className="w-5 h-5" />
+                  <TrashIcon className="w-4 h-4 sm:w-5 sm:h-5" />
                 </button>
               </div>
             )}
           </div>
 
           {/* Properties Grid (Notion Style) */}
-          <div className="flex flex-col gap-4 max-w-2xl">
-            <div className="flex items-center gap-3">
-              <span className="w-32 shrink-0 text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-zinc-500">Looptijd</span>
-              <div className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300 px-2 py-1">
-                <CalendarIcon className="w-4 h-4 text-gray-400 dark:text-zinc-500" />
+          <div className="flex flex-col gap-1 sm:gap-2 max-w-2xl mt-4 sm:mt-0">
+            <div className="flex items-center gap-2 sm:gap-3 group">
+              <span className="w-24 sm:w-32 shrink-0 text-xs text-gray-500 dark:text-zinc-400">Looptijd</span>
+              <div className="flex-1 min-w-0 flex items-center gap-2 text-sm font-medium text-gray-900 dark:text-white px-2 py-1.5 -ml-2 hover:bg-gray-100 dark:hover:bg-zinc-800 rounded transition-colors">
+                <CalendarIcon className="w-4 h-4 text-gray-400 dark:text-zinc-500 shrink-0" />
                 <div className="flex items-center gap-2">
                   <ClientDateRange 
                     defaultStart={task.date_start || ''} 

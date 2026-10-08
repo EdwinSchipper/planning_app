@@ -71,7 +71,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
       {/* Main content area */}
       <main className="flex-1 flex flex-col min-w-0 overflow-hidden pb-16 md:pb-0">
         {/* Simple mobile header */}
-        <header className="md:hidden h-16 shrink-0 border-b border-gray-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 flex items-center justify-between px-4">
+        <header className="md:hidden shrink-0 border-b border-gray-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 flex items-center justify-between p-8">
           <Link href="/" className="flex items-center gap-2 outline-none">
             <div className="bg-blue-600 text-white p-1.5 rounded-lg active:scale-95 transition-transform">
               <CalendarDaysIcon className="h-5 w-5" />
@@ -90,7 +90,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
         </header>
 
         {/* Active page content is loaded here */}
-        <div className="flex-1 overflow-auto px-5 py-8 sm:p-8 md:p-10 lg:p-12">
+        <div className="flex-1 overflow-auto px-8 py-8 md:p-10 lg:p-12">
           <div className="max-w-5xl mx-auto">
             {children}
           </div>

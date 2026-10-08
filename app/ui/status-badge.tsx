@@ -5,7 +5,7 @@ interface StatusBadgeProps {
 }
 
 export function StatusBadge({ status }: StatusBadgeProps) {
-  const base = "px-2 py-0.5 rounded-md border text-xs font-medium inline-block";
+  const base = "px-1.5 sm:px-2 py-0.5 rounded-md border text-[11px] sm:text-xs font-medium inline-block";
   let colorClasses = "";
 
   switch (status) {

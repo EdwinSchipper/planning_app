@@ -54,30 +54,30 @@ export default function PlanningClient({ currentUserId }: { currentUserId: strin
     const isCompleted = task.status === 'Voltooid';
     
     return (
-    <li key={task.id} className={`p-4 sm:p-5 hover:bg-gray-50 dark:hover:bg-zinc-800/50 transition-colors group ${isCompleted ? 'opacity-60 bg-gray-50/50 dark:bg-zinc-900/50' : ''}`}>
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
-        <div className="flex items-start gap-3 sm:gap-4 flex-1 min-w-0">
+    <li key={task.id} className={`p-3 sm:p-5 hover:bg-gray-50 dark:hover:bg-zinc-800/50 transition-colors group ${isCompleted ? 'opacity-60 bg-gray-50/50 dark:bg-zinc-900/50' : ''}`}>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-4">
+        <div className="flex items-start gap-2 sm:gap-4 flex-1 min-w-0">
           
-          <form action={() => isCompleted ? handleReopen(task.id) : handleComplete(task.id)} className="shrink-0 mt-0.5 sm:mt-1">
+          <form action={() => isCompleted ? handleReopen(task.id) : handleComplete(task.id)} className="shrink-0 mt-0.5">
             <button 
               type="submit" 
               title={isCompleted ? "Taak is voltooid. Klik om te heropenen." : "Markeer als voltooid"}
-              className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all cursor-pointer ${
+              className={`w-5 h-5 sm:w-6 sm:h-6 rounded-full border-2 flex items-center justify-center transition-all cursor-pointer ${
                 isCompleted 
                   ? 'bg-green-50 text-green-600 border-green-300 hover:bg-green-100 hover:border-green-400' 
                   : 'border-gray-300 dark:border-zinc-600 hover:border-green-500 hover:bg-green-50 dark:hover:bg-green-900/30 text-transparent hover:text-green-500'
               }`}
             >
-              <CheckIcon className={`w-4 h-4 stroke-[3] ${isCompleted ? 'text-green-600' : ''}`} />
+              <CheckIcon className={`w-3.5 h-3.5 sm:w-4 sm:h-4 stroke-[3] ${isCompleted ? 'text-green-600' : ''}`} />
             </button>
           </form>
 
           <div className="flex-1 min-w-0">
-            <Link href={`/dashboard/planning/${task.id}`} className={`text-base font-semibold transition-colors truncate block cursor-pointer ${isCompleted ? 'text-gray-500 dark:text-zinc-500 line-through' : 'text-gray-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400'}`}>
+            <Link href={`/dashboard/planning/${task.id}`} className={`text-sm sm:text-base font-semibold transition-colors truncate block cursor-pointer ${isCompleted ? 'text-gray-500 dark:text-zinc-500 line-through' : 'text-gray-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400'}`}>
               {task.task_title || "Naamloze Taak"}
             </Link>
           
-          <div className="mt-2.5 flex items-center gap-2 sm:gap-3 flex-wrap text-xs text-gray-500 dark:text-zinc-400">
+          <div className="mt-1.5 sm:mt-2.5 flex items-center gap-2 sm:gap-3 flex-wrap text-[11px] sm:text-xs text-gray-500 dark:text-zinc-400">
             {task.status && (
               <StatusBadge status={task.status} />
             )}
@@ -112,15 +112,15 @@ export default function PlanningClient({ currentUserId }: { currentUserId: strin
         </div>
         </div>
 
-        <div className="shrink-0 flex items-center justify-end gap-1 sm:gap-2 self-end sm:self-auto mt-2 sm:mt-0 w-full sm:w-auto pt-3 sm:pt-0 border-t border-gray-100 dark:border-zinc-800 sm:border-0">
+        <div className="shrink-0 flex items-center justify-end gap-1 sm:gap-2 self-end sm:self-auto mt-2 sm:mt-0 w-full sm:w-auto pt-2 sm:pt-0 border-t border-gray-100 dark:border-zinc-800 sm:border-0">
           <form action={() => handleDelete(task.id)}>
-            <button type="submit" title="Taak verwijderen" className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-md transition-colors cursor-pointer">
-              <TrashIcon className="w-5 h-5" />
+            <button type="submit" title="Taak verwijderen" className="p-1.5 sm:p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-md transition-colors cursor-pointer">
+              <TrashIcon className="w-4 h-4 sm:w-5 sm:h-5" />
             </button>
           </form>
-          <Link href={`/dashboard/planning/${task.id}`} title="Details bekijken" className="px-3 py-1.5 sm:p-2 text-sm sm:text-base font-medium text-gray-600 dark:text-gray-300 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded-md transition-colors cursor-pointer flex items-center gap-1.5">
+          <Link href={`/dashboard/planning/${task.id}`} title="Details bekijken" className="px-2 py-1 sm:p-2 text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded-md transition-colors cursor-pointer flex items-center gap-1">
             <span className="sm:hidden">Details</span>
-            <ChevronRightIcon className="w-5 h-5" />
+            <ChevronRightIcon className="w-4 h-4 sm:w-5 sm:h-5" />
           </Link>
         </div>
       </div>
@@ -132,17 +132,17 @@ export default function PlanningClient({ currentUserId }: { currentUserId: strin
     <div className="space-y-8 max-w-5xl">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-gray-900 dark:text-white">Planning & Taken</h1>
-          <p className="mt-2 text-[15px] text-gray-500 dark:text-zinc-400">
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-gray-900 dark:text-white">Planning & Taken</h1>
+          <p className="mt-1 sm:mt-2 text-sm sm:text-[15px] text-gray-500 dark:text-zinc-400">
             Overzicht van alle beschikbare projecten en taken.
           </p>
         </div>
 
         <Link
           href="/dashboard/planning/nieuw"
-          className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-blue-700 shadow-sm transition-colors w-full sm:w-auto justify-center cursor-pointer"
+          className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 sm:py-2.5 text-sm font-semibold text-white hover:bg-blue-700 shadow-sm transition-colors w-full sm:w-auto justify-center cursor-pointer"
         >
-          <PlusIcon className="w-5 h-5" />
+          <PlusIcon className="w-4 h-4 sm:w-5 sm:h-5" />
           Nieuwe Taak
         </Link>
       </div>
@@ -151,13 +151,13 @@ export default function PlanningClient({ currentUserId }: { currentUserId: strin
       <div className="flex bg-gray-100 dark:bg-zinc-800/50 p-1 rounded-lg w-full sm:w-fit border border-gray-200 dark:border-zinc-800">
         <Link
           href="?filter=all"
-          className={`flex-1 sm:flex-none text-center px-4 py-2.5 sm:py-2 text-sm font-medium rounded-md transition-all cursor-pointer ${filter === 'all' ? 'bg-white dark:bg-zinc-700 shadow-sm text-gray-900 dark:text-white' : 'text-gray-500 hover:text-gray-700 dark:text-zinc-400 dark:hover:text-zinc-200'}`}
+          className={`flex-1 sm:flex-none text-center px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium rounded-md transition-all cursor-pointer ${filter === 'all' ? 'bg-white dark:bg-zinc-700 shadow-sm text-gray-900 dark:text-white' : 'text-gray-500 hover:text-gray-700 dark:text-zinc-400 dark:hover:text-zinc-200'}`}
         >
           Alle Taken
         </Link>
         <Link
           href="?filter=mine"
-          className={`flex-1 sm:flex-none text-center px-4 py-2.5 sm:py-2 text-sm font-medium rounded-md transition-all cursor-pointer ${filter === 'mine' ? 'bg-white dark:bg-zinc-700 shadow-sm text-gray-900 dark:text-white' : 'text-gray-500 hover:text-gray-700 dark:text-zinc-400 dark:hover:text-zinc-200'}`}
+          className={`flex-1 sm:flex-none text-center px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium rounded-md transition-all cursor-pointer ${filter === 'mine' ? 'bg-white dark:bg-zinc-700 shadow-sm text-gray-900 dark:text-white' : 'text-gray-500 hover:text-gray-700 dark:text-zinc-400 dark:hover:text-zinc-200'}`}
         >
           Mijn Taken
         </Link>
