@@ -49,6 +49,7 @@ export default async function DashboardHome() {
   // Rendert het client component. De taken zitten al in het geheugen dankzij layout.tsx!
   return (
     <DashboardClient 
+      userId={user.id}
       fullName={fullName}
       email={user.email || ''}
       role={role}

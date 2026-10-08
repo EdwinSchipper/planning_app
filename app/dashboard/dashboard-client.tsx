@@ -8,11 +8,13 @@ import { useTaskStore } from '@/store/useTaskStore';
 import { completeTask, reopenTask, deleteTask } from './planning/[id]/actions';
 
 export default function DashboardClient({ 
+  userId,
   fullName, 
   email, 
   role, 
   completedThisWeekCount 
 }: { 
+  userId: string,
   fullName: string, 
   email: string, 
   role: string, 
@@ -23,7 +25,7 @@ export default function DashboardClient({
   const updateTaskInStore = useTaskStore(state => state.updateTask);
   const removeTaskFromStore = useTaskStore(state => state.removeTask);
 
-  const openTasks = getOpenTasks();
+  const openTasks = getOpenTasks().filter(task => task.userID === userId);
   
   // Sort by deadline (matching the original server code)
   const sortedTasks = [...openTasks].sort((a, b) => {
