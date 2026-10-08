@@ -97,8 +97,7 @@ export async function updateTask(formData: FormData) {
     })
 
     // Vernieuw de cache zodat de UI direct de nieuwe data toont
-    revalidatePath(`/dashboard/planning/${task_id}`)
-    revalidatePath('/dashboard/planning')
+    revalidatePath('/dashboard', 'layout')
   }
 }
 
@@ -121,7 +120,7 @@ export async function archiveTask(formData: FormData) {
       user_id: user.id,
       action: 'Taak gearchiveerd'
     })
-    revalidatePath('/dashboard/planning')
+    revalidatePath('/dashboard', 'layout')
     redirect('/dashboard/planning')
   }
 }
@@ -140,7 +139,7 @@ export async function deleteTask(formData: FormData) {
     .eq('id', parseInt(task_id))
 
   if (!error) {
-    revalidatePath('/dashboard/planning')
+    revalidatePath('/dashboard', 'layout')
     redirect('/dashboard/planning')
   }
 }
@@ -164,9 +163,7 @@ export async function completeTask(formData: FormData) {
       user_id: user.id,
       action: "Status naar 'Voltooid'"
     })
-    revalidatePath(`/dashboard/planning/${task_id}`)
-    revalidatePath('/dashboard/planning')
-    revalidatePath('/dashboard')
+    revalidatePath('/dashboard', 'layout')
   }
 }
 
@@ -189,9 +186,7 @@ export async function reopenTask(formData: FormData) {
       user_id: user.id,
       action: "Status naar 'Open'"
     })
-    revalidatePath(`/dashboard/planning/${task_id}`)
-    revalidatePath('/dashboard/planning')
-    revalidatePath('/dashboard')
+    revalidatePath('/dashboard', 'layout')
   }
 }
 

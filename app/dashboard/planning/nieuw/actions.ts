@@ -59,6 +59,6 @@ export async function createTask(prevState: any, formData: FormData) {
   }
 
   // Als alles goed ging: vernieuw de planning pagina (zodat de taak erbij staat) en ga terug
-  revalidatePath('/dashboard/planning')
+  revalidatePath('/dashboard', 'layout')
   redirect('/dashboard/planning')
 }

@@ -1,16 +1,36 @@
 import Link from 'next/link';
 import { HomeIcon, CalendarIcon, UserIcon, PowerIcon } from '@heroicons/react/24/outline';
 import { logout } from '@/app/(auth)/login/actions';
+import { createClient } from '@/utils/supabase/server';
+import StoreInitializer from '@/store/store-initializer';
 
-export default function DashboardLayout({ children }: { children: React.ReactNode }) {
+export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const navigation = [
     { name: 'Home', href: '/dashboard', icon: HomeIcon },
     { name: 'Planning', href: '/dashboard/planning', icon: CalendarIcon },
     { name: 'Profiel', href: '/dashboard/profiel', icon: UserIcon },
   ];
 
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  
+  // Fetch all tasks globally for the logged-in user
+  let tasks: any[] = [];
+  if (user) {
+    const { data } = await supabase
+      .from('db_tasks')
+      .select('*')
+      .neq('is_archived', true)
+      .order('date_end', { ascending: true, nullsFirst: false })
+      .order('created_at', { ascending: false });
+    tasks = data || [];
+  }
+
   return (
     <div className="flex h-screen bg-gray-50 dark:bg-zinc-950 font-sans overflow-hidden">
+      {/* Instantly populates the Zustand store for ALL pages in the dashboard */}
+      <StoreInitializer tasks={tasks} />
+      
       {/* Sidebar for desktop */}
       <aside className="w-64 border-r border-gray-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 hidden md:flex flex-col">
         <div className="h-16 flex items-center px-6 border-b border-gray-200 dark:border-zinc-800">
